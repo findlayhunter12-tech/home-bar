@@ -14,13 +14,15 @@ A small web app for keeping track of a home bar: what bottles you have, what you
 
 ## Getting started
 
-1. Download `Home Bar.html` and open it in a browser.
+1. Open it at **[findlayhunter12-tech.github.io/home-bar](https://findlayhunter12-tech.github.io/home-bar/)**, or download `Home Bar.html` and open the file in a browser.
 2. On the Bar and Essentials tabs, tick what you own. A new install starts with a generic list with nothing ticked. Add your own bottles by name or from a photo.
 3. For the AI features, add a Gemini API key in Settings (see below). Everything else works without one.
 
 ### On an Android phone
 
-Chrome treats the page differently depending on how it is opened:
+The simplest way is the hosted address above: sharing and copy work there, and Chrome's "Add to Home screen" gives it an icon. Updates arrive by themselves.
+
+If you use a downloaded copy instead, Chrome treats the page differently depending on how it is opened:
 
 - **Opened from a file manager**, the page gets a `content://` address. The app works, but the share sheet and automatic copy are not available. Copy falls back to a "copy by hand" box.
 - **Opened from Chrome's address bar**, at for example `file:///sdcard/Download/Home%20Bar.html`, sharing and copy both work.
@@ -40,7 +42,7 @@ Things to know:
 - The default model is `gemini-3.8-flash`. If a model is out of quota, busy or unavailable, the app tries the other free-tier Flash and Flash-Lite models in turn and tells you which one answered. Free quotas are counted per model, so this keeps things working on busy days.
 - If Gemini cannot answer at all, the app shows the exact prompt with a copy button, so you can paste it into the Gemini app instead.
 - Your prompts, which include your stock list, go to Google under the terms of your API key. On the free tier Google may use them to improve its products. Check Google's terms if that matters to you.
-- If the app is hosted at a fixed address, you can restrict the key in Google's settings to that address and to the Gemini API only.
+- If you only use the hosted address, you can restrict the key in Google's settings to that address (`https://findlayhunter12-tech.github.io/*`) and to the Gemini API only. A restricted key will not work from a downloaded copy.
 
 ## Your data
 
@@ -53,6 +55,12 @@ That also means clearing the browser's site data deletes it. Use Settings, then 
 | File | What it is |
 | --- | --- |
 | `Home Bar.html` | The whole app: HTML, CSS and JavaScript in one file |
+| `index.html` | Sends the hosted address on to `Home Bar.html` |
 | `Archive/CHANGELOG.md` | What changed in each version |
+| `LICENSE` | MIT licence |
 
 The version number is shown in Settings, under About.
+
+## Licence
+
+MIT. You are free to use, change and share it; keep the copyright notice in copies. See `LICENSE`.
