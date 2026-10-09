@@ -1,0 +1,15 @@
+# Personal data: backup exports hold stock, notes and saved recipes
+home-bar-backup-*.json
+*.json
+
+# Phone screenshots
+Screenshot_*.png
+*.png
+*.jpg
+
+# Archived copies stay local: versions up to v18 carry a personal starting list.
+# Git history holds every version from v19 on. CHANGELOG.md is still tracked.
+Archive/*.html
+
+# Test tool output
+.playwright-mcp/

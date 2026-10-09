@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Home Bar</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8D%B8%3C/text%3E%3C/svg%3E">
+<style>
+:root{color-scheme:light dark;--bg:#faf7f2;--fg:#1f1b16;--mut:#6b6157;--card:#fff;--line:#e6ddd0;--acc:#b4532a;--ok:#2f7d4f;--no:#b3261e;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17130f;--fg:#f2ebe1;--mut:#b0a494;--card:#221d17;--line:#3a322a;--acc:#e08a5c;--ok:#5fc08a;--no:#f08a82}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#17130f;--fg:#f2ebe1;--mut:#b0a494;--card:#221d17;--line:#3a322a;--acc:#e08a5c;--ok:#5fc08a;--no:#f08a82}
+:root[data-theme="light"]{color-scheme:light}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.4 system-ui,sans-serif;padding-bottom:76px}
+main{max-width:640px;margin:0 auto;padding:12px 14px}
+h1{font-size:22px;margin:6px 0 2px}
+h3{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);margin:18px 0 6px}
+h3.cat{display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;padding:4px 0}
+h3.cat span{font-size:12px}
+.sum,.mut{color:var(--mut);font-size:14px}
+.row2{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;align-items:center}
+.chip,.btn{border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:20px;padding:8px 14px;font:inherit;font-size:14px}
+.chip.on,.btn{background:var(--acc);border-color:var(--acc);color:#fff}
+.btn{border-radius:10px;padding:10px 16px}
+.btn.sec{background:var(--card);color:var(--fg);border-color:var(--line)}
+.chip.warn{border-color:var(--no);color:var(--no);background:transparent}
+a.chip{display:inline-block;text-decoration:none;color:var(--fg)}
+.fb{white-space:normal}
+.item,.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.card{display:block}
+.ct{cursor:pointer}
+.ctr{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.need{color:var(--mut);font-size:14px;margin-top:2px}
+.tag{font-size:11px;color:var(--mut);border:1px solid var(--line);border-radius:6px;padding:0 5px;margin-left:6px;vertical-align:middle}
+.tg{width:48px;height:28px;border-radius:14px;border:0;background:var(--line);position:relative;flex:none}
+.tg i{position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:left .15s}
+.tg.on{background:var(--ok)}.tg.on i{left:23px}
+.del{border:0;background:none;color:var(--no);font-size:18px;padding:4px 8px}
+.ing{padding:3px 0;font-size:15px}.y{color:var(--ok)}.n{color:var(--no)}
+.out{white-space:pre-wrap;font-size:15px;margin-top:10px}
+.badge{font-size:12px;border-radius:8px;padding:2px 8px;background:var(--line);color:var(--fg)}
+.badge.ok{background:var(--ok);color:#fff}.badge.new{background:var(--acc);color:#fff}
+.rev{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;align-items:start;padding:8px 0;border-top:1px solid var(--line)}
+.rev input[type=checkbox]{width:22px;height:22px;margin-top:8px;accent-color:var(--acc)}
+.thumb{max-width:100%;max-height:160px;border-radius:10px;display:block;margin:8px 0}
+.empty{padding:14px;text-align:center;color:var(--mut);font-size:14px}
+input,select,textarea{font:inherit;font-size:16px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--fg);min-width:0;box-sizing:border-box}
+input[type=search]{width:100%}
+textarea{width:100%}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.tab{flex:1;border:0;background:none;color:var(--mut);padding:14px 0;font:inherit;font-size:12px;white-space:nowrap}
+.lbl{display:flex;flex-direction:column;min-width:0}
+.why{color:var(--mut);font-size:13px}
+.tab.on{color:var(--acc);font-weight:600}
+a{color:var(--acc)}
+.nm{background:none;border:0;color:var(--fg);font:inherit;text-align:left;padding:0;flex:1;min-width:0;cursor:pointer}
+.nm .chev{color:var(--mut);margin-left:4px}
+.tag.low{color:var(--no);border-color:var(--no)}
+.veil{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:10}
+.sheet{position:fixed;left:0;right:0;bottom:0;max-height:88vh;overflow:auto;background:var(--bg);border-radius:16px 16px 0 0;padding:14px 16px calc(20px + env(safe-area-inset-bottom,0px));z-index:11;max-width:640px;margin:0 auto;box-shadow:0 -4px 24px rgba(0,0,0,.25)}
+.veil.top{z-index:12}.sheet.top{z-index:13}
+.sheet h2{font-size:19px;margin:0;line-height:1.25}
+.sheet h3{margin-top:16px}
+.lk{display:flex;gap:14px;flex-wrap:wrap;font-size:14px;align-items:center}
+</style></head><body>
+<main id="main"></main>
+<div id="sheet"></div>
+<nav><button class="tab" data-t="stock">🍾 Bar</button><button class="tab" data-t="cocktails">🍸 Cocktails</button><button class="tab" data-t="ideas">✨ Ideas</button><button class="tab" data-t="gear">🧰 Essentials</button><button class="tab" data-t="settings">⚙️ Settings</button></nav>
+<script>
+const VERSION='v19';
+// ---------- Default data ----------
+// Starting list for a new install: [in stock, not in stock] per category. Deliberately generic and
+// all "not in stock" so you tick what you own (or restore a backup). Names match the recipe keys in R.
+const DEF={
+"Gin":[[],["London dry gin"]],
+"Whisky":[[],["Scotch whisky","Bourbon","Rye whiskey"]],
+"Rum":[[],["White rum","Dark rum","Spiced rum","Coconut rum"]],
+"Vodka":[[],["Vodka"]],
+"Tequila":[[],["Tequila"]],
+"Brandy":[[],["Brandy"]],
+"Liqueurs":[[],["Triple sec","Amaretto","Coffee liqueur","Irish cream liqueur","Pimm's No. 1"]],
+"Aperitifs & fortified wines":[[],["Aperol","Campari","Sweet vermouth","Dry vermouth","Prosecco"]],
+"Bitters":[[],["Aromatic bitters","Orange bitters"]],
+"Non-alcoholic spirits":[[],["Alcohol-free gin"]],
+"Mixers":[[],["Club soda","Tonic water","Ginger beer","Cola","Lemonade","Lime juice","Lemon juice","Orange juice","Cranberry juice","Double cream"]],
+"Syrups & sugar":[[],["Simple syrup","Grenadine","Sugar"]],
+"Garnish & fresh":[[],["Limes","Lemons","Oranges","Cucumber","Fresh mint","Olives","Cherries","Eggs","Ice"]]};
+const R=["Old Fashioned;bourbon|rye whiskey|whisky;sugar|simple syrup;aromatic bitters|angostura bitters","Manhattan;rye whiskey|bourbon|whisky;sweet vermouth;aromatic bitters|angostura bitters",
+"Negroni;gin;campari;sweet vermouth","Martini;gin;dry vermouth;olives|lemons","Margarita;tequila;triple sec;lime juice","Daiquiri;white rum|spiced rum|dark rum;lime juice;simple syrup",
+"Mojito;white rum|spiced rum;lime juice;fresh mint;simple syrup|sugar;club soda","Moscow Mule;vodka;ginger beer;lime juice","Gin & Tonic;gin;tonic water;limes|lime juice",
+"Whiskey Sour;bourbon|rye whiskey|whisky;lemon juice;simple syrup","Cosmopolitan;vodka;triple sec;cranberry juice;lime juice","Dark 'n' Stormy;dark rum|spiced rum;ginger beer;lime juice",
+"Aperol Spritz;aperol;prosecco;club soda","Tom Collins;gin;lemon juice;simple syrup;club soda","Americano;campari;sweet vermouth;club soda",
+"Cuba Libre;white rum|spiced rum|dark rum;cola;lime juice","Sidecar;brandy;triple sec;lemon juice","Screwdriver;vodka;orange juice","White Russian;vodka;coffee liqueur;double cream|single cream|milk",
+"Black Russian;vodka;coffee liqueur","Amaretto Sour;amaretto;lemon juice;simple syrup","Boulevardier;bourbon|rye whiskey|whisky;campari;sweet vermouth","Tequila Sunrise;tequila;orange juice;grenadine",
+"Gimlet;gin;lime juice;simple syrup","Pimm's Cup;pimms|pimm's;lemonade;cucumber|oranges|fresh mint"
+].map(r=>{const p=r.split(';');return{name:p[0],ing:p.slice(1).map(x=>x.split('|'))}});
+// Bar essentials: [name, what it is for]. Everything starts as "missing" so you tick what you own.
+const GEAR={
+"Equipment":[
+["Cocktail shaker","Shaken drinks: Daiquiri, Margarita, Whiskey Sour, Cosmopolitan"],
+["Jigger or measure","Consistent amounts; most recipes build on 25 ml steps"],
+["Hawthorne strainer","Strains shaken drinks cleanly out of the shaker"],
+["Fine mesh strainer","Double-strain citrus and mint drinks for a clean finish"],
+["Bar spoon","Stirring Martini, Manhattan, Negroni; layering"],
+["Mixing glass","Stirred drinks that should never be shaken"],
+["Muddler","Mojito mint and lime, Old Fashioned sugar"],
+["Citrus press or juicer","Fresh lime and lemon juice beats bottled every time"],
+["Y-peeler or channel knife","Citrus twists for Martini, Old Fashioned, Negroni"],
+["Paring knife and small board","Wedges and wheels for garnish"],
+["Large ice cube tray","Big cubes melt slowly in an Old Fashioned or Negroni"],
+["Ice bucket and tongs","Keeps ice clean and handy while you make a round"],
+["Cocktail picks","Olives and cherries for Martini and Manhattan"],
+["Bottle opener and corkscrew","Tonic, ginger beer, prosecco, vermouth"]],
+"Glassware":[
+["Rocks glass","Old Fashioned, Negroni, Whiskey Sour, Black Russian"],
+["Highball or Collins glass","Gin & Tonic, Mojito, Tom Collins, Cuba Libre, Moscow Mule"],
+["Coupe or Martini glass","Martini, Manhattan, Daiquiri, Cosmopolitan, Sidecar"],
+["Large wine glass","Aperol Spritz, Pimm's Cup"],
+["Copper mug","Moscow Mule; optional but traditional"],
+["Shot glass","Measuring in a pinch, and shots"]]};
+// ---------- Storage ----------
+function load(k,d){try{const v=JSON.parse(localStorage.getItem(k));return v&&typeof v==='object'?Object.assign(d,v):d}catch(e){return d}}
+function store(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function seedGear(){const g=[];for(const c in GEAR)GEAR[c].forEach(([n,w])=>g.push({n,c,w,s:0}));return g}
+function seed(){const items=[];for(const c in DEF){DEF[c][0].forEach(n=>items.push({n,c,s:1}));DEF[c][1].forEach(n=>items.push({n,c,s:0}))}return{items,gear:seedGear(),saved:[]}}
+let S=null;try{S=JSON.parse(localStorage.getItem('homebar2'))}catch(e){}
+if(!S||!Array.isArray(S.items))S=seed();
+if(!Array.isArray(S.gear))S.gear=seedGear();
+if(!Array.isArray(S.saved))S.saved=[];   // recipes kept from "Surprise me" and "How to make": {id,name,text,src,extra?,t}
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const P=load('homebar_prefs',{col:{},theme:'auto',lastBk:0,chg:0,bkLater:0});   // collapsed categories, appearance, backup tracking
+function save(){S.t=Date.now();store('homebar2',S);P.chg=(P.chg||0)+1;store('homebar_prefs',P)}   // chg counts saves since the last backup
+const AI=load('homebar_ai',{rec:{},ideas:null,notes:{},gear:{}});    // cached Gemini answers (recipes, ideas, per-bottle notes, per-essential tips)
+if(!AI.notes||typeof AI.notes!=='object')AI.notes={};
+if(!AI.gear||typeof AI.gear!=='object')AI.gear={};
+function setStock(i,v){i.s=v?1:0;if(!i.s)delete i.l;save()}  // out of stock can't also be "running low"
+function removeItem(i){S.items=S.items.filter(x=>x!==i);if(!S.items.some(x=>x.n===i.n)&&AI.notes[i.n]){delete AI.notes[i.n];store('homebar_ai',AI)}save()}  // drop its tasting notes too
+// Inline rename used by Edit mode on the Bar and Essentials tabs. Tasting notes follow the new name.
+let ren=null,renMsg='';
+function renameRow(i,list,after){
+  const inp=h('input',{value:i.n,'aria-label':'New name',style:'flex:1'});
+  const done=()=>{const v=inp.value.trim();if(!v||v===i.n){ren=null;renMsg='';after();return}
+    if(list.some(x=>x!==i&&x.n===v)){renMsg='Another item is already called "'+v+'".';after();return}
+    const nb=list===S.items?AI.notes:AI.gear;if(nb[i.n]){nb[v]=nb[i.n];delete nb[i.n];store('homebar_ai',AI)}
+    i.n=v;save();ren=null;renMsg='';after()};
+  const cancel=()=>{ren=null;renMsg='';after()};
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter')done();else if(e.key==='Escape')cancel()});
+  const w=h('div',{c:'item',style:'flex-wrap:wrap'},inp,h('button',{c:'del',style:'color:var(--ok)','aria-label':'Save name',onclick:done},'✓'),h('button',{c:'del',style:'color:var(--mut)','aria-label':'Cancel rename',onclick:cancel},'✕'));
+  if(renMsg)w.append(h('div',{c:'sum',style:'flex:1 1 100%'},renMsg));
+  setTimeout(()=>{inp.focus();inp.select()},0);
+  return w;
+}
+function resetAll(){S=seed();AI.rec={};AI.ideas=null;AI.notes={};AI.gear={};store('homebar_ai',AI);mood='Anything';style='Any';extra='';open=null;openS=null;det=null;gdet=null;save()}
+function applyTheme(){const r=document.documentElement;if(P.theme==='auto')r.removeAttribute('data-theme');else r.setAttribute('data-theme',P.theme)}
+function restoreDefaults(){let n=0;for(const c in DEF)[0,1].forEach(k=>DEF[c][k].forEach(nm=>{if(!S.items.some(i=>i.n===nm)){S.items.push({n:nm,c,s:0});n++}}));
+  for(const c in GEAR)GEAR[c].forEach(([nm,w])=>{if(!S.gear.some(g=>g.n===nm)){S.gear.push({n:nm,c,w,s:0});n++}});save();return n}
+// ---------- Gemini ----------
+const GK='homebar_gemini_key',GM='homebar_gemini_model',GDEF='gemini-3.8-flash';
+const gkey=()=>localStorage.getItem(GK)||'';
+const gmodel=()=>localStorage.getItem(GM)||GDEF;
+function gset(k,m){if(k)localStorage.setItem(GK,k);else localStorage.removeItem(GK);if(m&&m!==GDEF)localStorage.setItem(GM,m);else localStorage.removeItem(GM)}
+const GTIMEOUT=60000;   // the whole call, including streaming, gives up after this
+// Free-tier text models from Google's pricing page (2026-10-08), best first. Free quotas are counted per model, so when the
+// preferred model is busy or out of quota the next one usually answers. Pro, image, audio and video models have no free tier.
+const GMODELS=['gemini-3.8-flash','gemini-3.7-flash','gemini-3.6-flash','gemini-3.5-flash','gemini-3.5-flash-lite','gemini-3.1-flash-lite','gemini-3-flash-preview','gemini-2.5-flash-lite'];
+const gorder=()=>[gmodel(),...GMODELS.filter(m=>m!==gmodel())];
+const gShort=m=>m.replace(/^gemini-/,'').split('-').map(cap).join(' ');
+const gSkip={};        // model -> {until,code}: skipped after quota/busy (5 min) or not found (until the page is reopened)
+let gLast=null;        // model that answered the last successful call
+const gRetry=c=>c===429||c===404||(c>=500&&c<600);
+// Why the preferred model was passed over, for the small note under a stand-in answer; '' when it answered itself.
+function gWhy(){if(!gLast||gLast===gmodel())return '';const s=gSkip[gmodel()],c=s&&s.code;
+  return 'Answered by '+gLast+'. Your usual model '+(c===429?'is out of quota for now.':c===503?'was busy.':c===404?'was not found.':'had an error.')}
+// Tries the preferred model, then the rest of GMODELS, skipping ones that failed recently. onModel(m) is called before each
+// stand-in attempt so the UI can say so. Only server-side refusals fall over; network failures and timeouts do not.
+async function gfetch(method,body,onModel){
+  const key=gkey();if(!key)throw{code:'nokey'};
+  const order=gorder(),now=Date.now(),live=order.filter(m=>!(gSkip[m]&&gSkip[m].until>now));
+  const list=live.length?live:[order[0]];
+  let last=null,tried=0;
+  for(const m of list){
+    if(tried&&onModel)onModel(m);
+    tried++;
+    try{const r=await gfetch1(method,body,key,m);gLast=m;return r}
+    catch(e){last=e;if(!gRetry(e.code))throw e;gSkip[m]={until:e.code===404?Infinity:Date.now()+5*60000,code:e.code}}
+  }
+  throw Object.assign(last,{tried});
+}
+// One request to one model. Returns {res,end,ctl}: call end() once the body has been read. A hung connection is aborted and surfaces as {code:'timeout'}.
+async function gfetch1(method,body,key,model){
+  const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),GTIMEOUT),end=()=>clearTimeout(timer);
+  let res;
+  try{res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(model)+':'+method,{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify(body),signal:ctl.signal})}
+  catch(e){end();throw{code:ctl.signal.aborted?'timeout':'net'}}
+  if(!res.ok){end();let msg='';try{msg=((await res.json()).error||{}).message||''}catch(e){}throw{code:res.status,msg}}
+  return{res,end,ctl};
+}
+const partsText=j=>{let t='';(j.candidates||[]).forEach(c=>((c.content||{}).parts||[]).forEach(p=>{if(p.text)t+=p.text}));return t};
+async function gemini(prompt,onText,onModel){
+  const{res,end,ctl}=await gfetch('streamGenerateContent?alt=sse',{contents:[{parts:[{text:prompt}]}]},onModel);
+  let text='';
+  const line=l=>{if(!l.startsWith('data:'))return;try{text+=partsText(JSON.parse(l.slice(5)))}catch(e){}};
+  try{
+    if(res.body&&res.body.getReader){
+      const rd=res.body.getReader(),dec=new TextDecoder();let buf='';
+      for(;;){const{value,done}=await rd.read();if(done)break;buf+=dec.decode(value,{stream:true});const ls=buf.split('\n');buf=ls.pop();ls.forEach(line);onText&&onText(text)}
+      line(buf);
+    }else (await res.text()).split('\n').forEach(line);
+  }catch(e){throw{code:ctl.signal.aborted?'timeout':'net'}}
+  finally{end()}
+  return text.trim();
+}
+async function geminiJSON(prompt,jpegDataUrl,schema){
+  const parts=[{text:prompt}];
+  if(jpegDataUrl)parts.push({inlineData:{mimeType:'image/jpeg',data:jpegDataUrl.split(',')[1]}});
+  const{res,end,ctl}=await gfetch('generateContent',{contents:[{parts}],generationConfig:{responseMimeType:'application/json',responseSchema:schema}});
+  let j;try{j=await res.json()}catch(e){throw{code:ctl.signal.aborted?'timeout':'net'}}finally{end()}
+  try{return JSON.parse(partsText(j))}catch(e){throw{code:'parse'}}
+}
+function gerr(e){
+  const c=e&&e.code,m=e&&e.msg?' ('+e.msg+')':'';
+  if(c==='nokey')return 'Add your Gemini API key under Settings.';
+  if(c==='net')return 'Could not reach Gemini. Check your connection and try again.';
+  if(c==='timeout')return 'Gemini took too long to answer. Try again.';
+  if(c==='parse')return 'Gemini sent back something unexpected. Try again.';
+  if(c==='img')return 'Could not read that image.';
+  if(e&&e.tried>1)return 'Every Gemini model tried ('+e.tried+') was busy, out of quota or unavailable. Try again in a minute.'+m;
+  if(c===400||c===401||c===403)return 'Gemini did not accept the key. Check it under Settings.'+m;
+  if(c===404)return 'Model "'+gmodel()+'" was not found. Check the model name under Settings.'+m;
+  if(c===429)return 'Gemini quota reached for now. Try again in a minute.';
+  if(c===503)return 'Gemini is busy right now (high demand). Try again in a minute.';
+  return 'Gemini returned an error'+(c?' ('+c+')':'')+'.'+m;
+}
+// When the API can't answer, hand the exact prompt over so it can be pasted into the Gemini app instead.
+function fallback(out,msg,prompt){
+  const note=h('span',{c:'sum'}),say=t=>{note.textContent=t};
+  out.replaceChildren(msg,h('div',{c:'row2 fb'},h('button',{c:'chip',onclick:()=>copy(prompt,say)},'Copy prompt'),h('a',{c:'chip',href:'https://gemini.google.com/app',target:'_blank',rel:'noopener'},'Open Gemini'),note),
+    h('div',{c:'sum fb'},'Backup: copy the prompt, open Gemini and paste it there for the same answer.'));
+}
+// btn (optional) is disabled while the call runs so a second tap can't start a second request.
+async function ask(prompt,out,done,btn){
+  if(!gkey()){fallback(out,gerr({code:'nokey'}),prompt);return}
+  if(btn){if(btn.disabled)return;btn.disabled=true}
+  out.textContent='Thinking…';
+  try{const t=await gemini(prompt,x=>{if(x)out.textContent=x},m=>{out.textContent='Thinking… trying '+gShort(m)});
+    if(t){out.textContent=t;done&&done(t);const w=gWhy();if(w)out.append(h('div',{c:'sum',style:'margin-top:8px'},w))}else fallback(out,'Gemini returned an empty answer.',prompt)}
+  catch(e){fallback(out,gerr(e),prompt)}
+  finally{if(btn)btn.disabled=false}
+}
+// ---------- Helpers ----------
+let tab='stock',filter='all',edit=false,open=null,confirmReset=false,mood=(AI.ideas&&AI.ideas.mood)||'Anything',style=(AI.ideas&&AI.ideas.style)||'Any',extra=(AI.ideas&&AI.ideas.extra)||'',q='',rev=null,scanMsg='',det=null,openS=null,delS=null,bkMsg='';
+const $=s=>document.querySelector(s);
+function h(t,a,...k){const e=document.createElement(t);for(const x in a||{}){if(a[x]==null)continue;if(x==='c')e.className=a[x];else if(x.slice(0,2)==='on')e.addEventListener(x.slice(2),a[x]);else e.setAttribute(x,a[x])}k.flat().forEach(c=>{if(c)e.append(c)});return e}
+const cats=()=>[...new Set([...Object.keys(DEF),...S.items.map(i=>i.c)])];
+const rx=a=>new RegExp('\\b'+a.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\b','i');
+const norm=s=>String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+const found=alts=>S.items.filter(i=>i.s&&!/non-alc/i.test(i.c)&&alts.some(a=>rx(a).test(i.n)));
+const have=alts=>found(alts).length>0;
+const stocked=()=>S.items.filter(i=>i.s).map(i=>/non-alc/i.test(i.c)?i.n+' (alcohol-free)':i.n);
+// Bar kit from the Essentials tab, as a prompt sentence. Empty until something is ticked,
+// so an untouched checklist does not rule out every shaken drink.
+function kitLine(forMethod){
+  const have=S.gear.filter(g=>g.s).map(g=>g.n),lack=S.gear.filter(g=>!g.s).map(g=>g.n);
+  if(!have.length)return '';
+  return ' My bar kit: '+have.join(', ')+'.'+(lack.length?' I do not have: '+lack.join(', ')+'.':'')
+    +(forMethod?' Write the method for this kit. Where the usual tool is missing, use a workaround with my kit or ordinary kitchen things (for example stir in the shaker tin with a long spoon, or press fruit with the end of a rolling pin) and serve it in a glass I own.'
+      :' Choose drinks that suit this kit. Where a drink usually needs a tool I do not have, use a workaround with my kit or ordinary kitchen things (for example stir in the shaker tin with a long spoon, or press fruit with the end of a rolling pin) or pick another drink. Serve each in a glass I own.');
+}
+const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+const label=a=>{const i=S.items.find(i=>!i.s&&rx(a).test(i.n));return i?i.n:cap(a)};
+// Clipboard. The modern API only exists in secure contexts (https, file://, localhost). Opened from an Android file
+// manager the page runs at content://, which is not one, so fall back to the old selection-based copy, and if that
+// fails too show the text in a sheet where it can be selected by hand.
+function copyOld(t){
+  const ta=h('textarea',{readonly:'','aria-hidden':'true',style:'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;pointer-events:none'});
+  ta.value=t;document.body.append(ta);ta.focus();ta.select();ta.setSelectionRange(0,t.length);
+  let ok=false;try{ok=document.execCommand('copy')}catch(e){}
+  ta.remove();return ok;
+}
+function manualCopy(t){
+  const ta=h('textarea',{rows:'8',readonly:''});ta.value=t;
+  const box=h('div',{id:'manual'}),close=()=>box.remove();
+  box.append(h('div',{c:'veil top',onclick:close}),h('div',{c:'sheet top'},
+    h('div',{c:'ctr'},h('h2',{},'Copy by hand'),h('button',{c:'chip',onclick:close},'Close')),
+    h('div',{c:'sum',style:'margin:8px 0'},'This browser will not let the app copy for you. Long-press the text, choose Select all, then Copy.'),ta));
+  document.body.append(box);ta.focus();ta.select();
+}
+async function copy(t,say){
+  if(navigator.clipboard&&navigator.clipboard.writeText){try{await navigator.clipboard.writeText(t);say('Copied.');return}catch(e){}}
+  if(copyOld(t)){say('Copied.');return}
+  say('Could not copy automatically.');manualCopy(t);
+}
+// Share sheet for plain text (Android), falling back to the clipboard where sharing is unavailable or refused.
+const canShare=()=>!!navigator.share;
+async function share(t,title,say){
+  if(!canShare()){copy(t,say);return}
+  try{await navigator.share({text:t,title});say('Shared.')}
+  catch(e){if(e&&e.name==='AbortError')say('Share cancelled.');else copy(t,say)}
+}
+// Share + Copy chips for a piece of text; Share only appears where the browser offers it.
+const outChips=(get,title,say)=>[canShare()?h('button',{c:'chip',onclick:()=>share(get(),title,say)},'Share'):null,h('button',{c:'chip',onclick:()=>copy(get(),say)},'Copy')].filter(Boolean);
+// ---------- Saved recipes ----------
+const isSaved=text=>S.saved.some(x=>x.text===text);
+// Does a recipe text mention this bottle? Full name, or its first two words, or a brand-like first word ("Johnnie Walker Black Label 12 Year Old..." → "johnnie walker").
+const words=s=>norm(s).split(' ').filter(w=>w.length>1);
+function mentions(text,name){
+  const t=' '+words(text).join(' ')+' ',w=words(name);if(!w.length)return false;
+  if(t.includes(' '+w.join(' ')+' '))return true;
+  if(w.length>2&&t.includes(' '+w.slice(0,2).join(' ')+' '))return true;
+  return w.length>2&&w[0].length>=5&&t.includes(' '+w[0]+' ');
+}
+function keep(name,text,src,extra){if(isSaved(text))return;S.saved.unshift({id:uid(),name,text,src,extra:extra||undefined,t:Date.now()});save()}
+// Split a "Surprise me" answer into its drinks: blocks separated by blank lines that contain "Ingredients:"; the first line is the name.
+function splitIdeas(t){
+  const bl=String(t||'').split(/\n\s*\n/).map(b=>b.trim()).filter(Boolean),out=[];
+  for(let k=0;k<bl.length;k++){
+    let b=bl[k];
+    if(!/\n/.test(b)&&bl[k+1]&&/^ingredients\s*:/i.test(bl[k+1]))b+='\n'+bl[++k];   // name left alone on its own block
+    while(bl[k+1]&&/^method\s*:/i.test(bl[k+1]))b+='\n'+bl[++k];                     // method split off from ingredients
+    if(!/ingredients\s*:/i.test(b))continue;
+    const name=b.split('\n')[0].replace(/^\s*(\d+[.)]|[-*•])\s*/,'').replace(/[:\s]+$/,'').trim();
+    out.push({name:!name||/^ingredients$/i.test(name)?'Cocktail '+(out.length+1):name,text:b});
+  }
+  return out;
+}
+const saveChip=(name,text,src,extra)=>{const done=isSaved(text);return h('button',{c:'chip'+(done?' on':''),disabled:done?'':null,onclick:()=>{keep(name,text,src,extra);render()}},done?'Saved ✓':'Save')};
+// ---------- Saved recipes joining Make now ----------
+// Gemini reads a saved recipe once and returns its ingredients as generic keys (same shape as R), so the recipe joins Make now, Buy next and the bottle sheets.
+const ING_SCHEMA={type:'OBJECT',properties:{ingredients:{type:'ARRAY',items:{type:'OBJECT',properties:{options:{type:'ARRAY',items:{type:'STRING'}}},required:['options']}}},required:['ingredients']};
+let strBusy=null;const strMsg={};   // id being read; per-id error text
+async function structure(x){
+  if(strBusy)return;
+  if(!gkey()){strMsg[x.id]=gerr({code:'nokey'});render();return}
+  strBusy=x.id;delete strMsg[x.id];render();
+  try{
+    const p='Read this cocktail recipe and list the ingredients it needs, for matching against a home bar inventory. For each ingredient give one to three short lowercase options: the generic kind first (for example "gin", "sweet vermouth", "lime juice", "simple syrup", "angostura bitters", "fresh mint"), then, if the recipe names one of my exact products, that product name too. Skip ice, water and purely decorative garnish; keep a garnish only when the drink depends on it, like mint in a Mojito. My products: '+JSON.stringify(S.items.map(i=>i.n))+'.\n\nRecipe:\n'+x.text;
+    const j=await geminiJSON(p,null,ING_SCHEMA);
+    const ing=(j.ingredients||[]).map(g=>(Array.isArray(g.options)?g.options:[]).map(o=>String(o).toLowerCase().replace(/\s+/g,' ').trim()).filter(o=>o&&o.length<=40&&!/^(ice|water)$/.test(o)).slice(0,3)).filter(g=>g.length).slice(0,12);
+    if(!ing.length)throw{code:'parse'};
+    x.ing=ing;save();
+  }catch(e){strMsg[x.id]=gerr(e)}
+  strBusy=null;if(tab==='cocktails')render();
+}
+const inMake=x=>Array.isArray(x.ing)&&x.ing.length>0;
+const allRecipes=()=>[...R,...S.saved.filter(inMake).map(x=>({name:x.name,ing:x.ing,saved:x}))];
+const ingLines=ing=>ing.map(a=>{const f=found(a),ok=f.length>0;return h('div',{c:'ing'},h('span',{c:ok?'y':'n'},ok?'✓ ':'✗ '),ok?f.map(i=>i.n).join(', '):a.map(cap).join(' or '))});
+function buyNext(){
+  const rows=allRecipes().map(r=>({r,m:r.ing.filter(a=>!have(a))})),cand={};
+  rows.forEach(x=>{if(!x.m.length)return;x.m.forEach(g=>g.forEach(a=>{const c=cand[a]||(cand[a]={a,full:[],closer:[]});(x.m.length===1?c.full:c.closer).push(x.r.name)}))});
+  const list=Object.values(cand).filter(c=>c.full.length).sort((p,q)=>q.full.length-p.full.length||q.closer.length-p.closer.length||p.a.localeCompare(q.a));
+  const out=[];list.forEach(c=>{if(out.length>=3)return;if(out.some(o=>c.full.every(n=>o.full.includes(n))))return;out.push(c)});
+  return out;
+}
+// ---------- Backup ----------
+const DAY=864e5;
+const ago=t=>{const d=Math.floor((Date.now()-t)/DAY);return d<1?'today':d===1?'yesterday':d+' days ago'};
+// Reminder is due when something changed since the last backup and it is 30+ days old (or there has never been one), or 25+ saves have piled up. "Later" snoozes it for 7 days.
+function bkDue(){
+  if(!S.t||S.t<=(P.lastBk||0))return false;
+  if(P.bkLater&&Date.now()-P.bkLater<7*DAY)return false;
+  return Date.now()-(P.lastBk||0)>=30*DAY||(P.chg||0)>=25;
+}
+function bkDone(){P.lastBk=Date.now();P.chg=0;P.bkLater=0;store('homebar_prefs',P)}
+// Export: share sheet where the browser supports sharing files (Android at a file:// or https address: send straight to OneDrive),
+// otherwise a plain download (incl. content:// pages opened from a file manager, which are not secure contexts). Never includes the key.
+async function exportBackup(say){
+  const data=JSON.stringify({app:'Home Bar',v:VERSION,t:Date.now(),items:S.items,gear:S.gear,saved:S.saved,ai:AI,prefs:P},null,1),name='home-bar-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  try{if(navigator.share&&navigator.canShare&&typeof File==='function'){const f=new File([data],name,{type:'application/json'});
+    if(navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'Home Bar backup'});bkDone();say('Backup shared.');return}}}
+  catch(e){if(e&&e.name==='AbortError'){say('Share cancelled.');return}}
+  try{const b=new Blob([data],{type:'application/json'}),u=URL.createObjectURL(b),a=h('a',{href:u,download:name});
+    document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1000);bkDone();say('Backup downloaded.')}catch(e){say('Could not save the file.')}
+}
+// ---------- Photo scan ----------
+async function shrink(f){
+  const url=URL.createObjectURL(f);
+  try{
+    const im=await new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=()=>no({code:'img'});i.src=url});
+    const k=Math.min(1,1024/Math.max(im.width,im.height)),cv=document.createElement('canvas');
+    cv.width=Math.round(im.width*k);cv.height=Math.round(im.height*k);
+    cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);
+    return cv.toDataURL('image/jpeg',.82);
+  }finally{URL.revokeObjectURL(url)}
+}
+const SCHEMA={type:'OBJECT',properties:{items:{type:'ARRAY',items:{type:'OBJECT',properties:{name:{type:'STRING'},category:{type:'STRING'},match:{type:'STRING',nullable:true}},required:['name','category']}}},required:['items']};
+function matchItem(name,hint){
+  let m=hint?S.items.find(i=>i.n===hint):null;
+  if(!m){const k=norm(name);if(k.length>=3)m=S.items.find(i=>{const x=norm(i.n);return x===k||(' '+x+' ').includes(' '+k+' ')||(' '+k+' ').includes(' '+x+' ')})||null}
+  return m;
+}
+let scanning=false;
+async function scan(f){
+  if(scanning)return;
+  if(!gkey()){scanMsg=gerr({code:'nokey'});render();return}
+  scanning=true;scanMsg='Reading the photo…';rev=null;render();scrollTo(0,0);
+  try{
+    const data=await shrink(f);
+    const prompt='This photo shows one or more bottles or ingredients for a home bar. List every distinct product you can identify. For each give: name (brand and product as printed, tidied up, e.g. "Hendrick\'s Gin"), category (choose one of: '+cats().join('; ')+'), and match (the exact string from the existing list below if it is the same product or a generic placeholder for it such as "Bourbon" for a bourbon, otherwise null). Existing list: '+JSON.stringify(S.items.map(i=>i.n))+'. If no bottle or ingredient is visible return an empty list.';
+    const j=await geminiJSON(prompt,data,SCHEMA);
+    const rows=(j.items||[]).filter(it=>it&&it.name).map(it=>{
+      const m=matchItem(it.name,it.match);
+      const c=cats().find(c=>norm(c)===norm(it.category))||(m?m.c:(it.category||'Other'));
+      return{on:1,n:String(it.name).trim(),c,m};
+    });
+    rev=rows.length?{img:data,rows}:null;scanMsg=rows.length?'':'No bottles or ingredients found in that photo.';
+  }catch(e){scanMsg=gerr(e)}
+  scanning=false;
+  if(tab==='stock')render();
+}
+function review(){
+  const c=h('div',{c:'card'}),say=t=>{scanMsg=t};
+  c.append(h('div',{c:'ctr'},h('b',{},'Found in your photo'),h('button',{c:'chip',onclick:()=>{rev=null;render()}},'Cancel')));
+  c.append(h('img',{src:rev.img,c:'thumb',alt:'Your photo'}),h('div',{c:'sum'},'Untick anything wrong, fix names or categories, then add.'));
+  rev.rows.forEach(r=>{
+    const cb=h('input',{type:'checkbox','aria-label':'Include '+r.n});cb.checked=!!r.on;cb.onchange=()=>{r.on=cb.checked?1:0};
+    const ni=h('input',{value:r.n,style:'width:100%','aria-label':'Name'});ni.oninput=()=>{r.n=ni.value};
+    const opts=cats();if(!opts.includes(r.c))opts.push(r.c);
+    const sel=h('select',{'aria-label':'Category'},...opts.map(x=>h('option',{value:x},x)));sel.value=r.c;sel.onchange=()=>{r.c=sel.value};
+    const badge=r.m?h('span',{c:'badge ok'},r.m.s?(r.m.l?'Restock: clears "running low" on '+r.m.n:'Already in stock: '+r.m.n):'Update: mark "'+r.m.n+'" in stock'):h('span',{c:'badge new'},'New item');
+    c.append(h('div',{c:'rev'},cb,h('div',{},ni,h('div',{c:'row2',style:'margin:6px 0 0'},sel,badge))));
+  });
+  const apply=()=>{let a=0,u=0,rl=0;rev.rows.forEach(r=>{if(!r.on)return;const n=r.n.trim();if(!n)return;if(r.m){if(!r.m.s){r.m.s=1;delete r.m.l;u++}else if(r.m.l){delete r.m.l;rl++}}else{S.items.push({n,c:r.c,s:1,u:1});a++}});
+    save();rev=null;const p=[];if(a)p.push(a+' added');if(u)p.push(u+' marked in stock');if(rl)p.push(rl+' restocked');say(p.length?p.join(', ')+'.':'Nothing to change.');render()};
+  c.append(h('div',{c:'row2'},h('button',{c:'btn',onclick:apply},'Add to my bar')));
+  return c;
+}
+// ---------- Bar tab ----------
+function stock(){
+  const w=h('div');
+  const sum=h('div',{c:'sum'});
+  const upd=()=>{const n=S.items.filter(i=>i.s).length,lo=S.items.filter(i=>i.s&&i.l).length;sum.textContent=n+' of '+S.items.length+' in stock'+(lo?' · '+lo+' running low':'')+(edit?' · tap a name to rename, ✕ to delete':n?' · tap a name for notes':' · tap a switch to mark what you have')};upd();
+  w.append(h('h1',{},'My Bar'),sum);
+  if(bkDue()){   // gentle reminder: data lives only in this browser
+    const bk=h('div',{c:'card'}),bnote=h('span',{c:'sum'}),bsay=t=>{bnote.textContent=t};
+    bk.append(h('div',{c:'ctr'},h('b',{},'Back up your bar?'),h('button',{c:'chip',onclick:()=>{P.bkLater=Date.now();store('homebar_prefs',P);render()}},'Later')),
+      h('div',{c:'need'},(P.lastBk?'Last backup '+ago(P.lastBk)+' and things have changed since.':'No backup yet.')+' Everything is stored only in this browser.'),
+      h('div',{c:'row2'},h('button',{c:'btn',onclick:()=>exportBackup(t=>{bsay(t);if(!bkDue())setTimeout(render,1200)})},'Export backup'),bnote));
+    w.append(bk);
+  }
+  if(scanMsg)w.append(h('div',{c:'sum',style:'margin:8px 0'},scanMsg));
+  if(rev)w.append(review());
+  const list=h('div');
+  const si=h('input',{type:'search',placeholder:'Search your bar',value:q,'aria-label':'Search',oninput:e=>{q=e.target.value;renderList()}});
+  const bar=h('div',{c:'row2'});
+  const fok=i=>filter==='all'||(filter==='in'?!!i.s:filter==='out'?!i.s:!!(i.s&&i.l));
+  [['all','All'],['in','In stock'],['low','Low'],['out','Out']].forEach(([f,l])=>bar.append(h('button',{c:'chip'+(filter===f?' on':''),'data-f':f,onclick:()=>{filter=f;renderList();bar.querySelectorAll('[data-f]').forEach(b=>b.classList.toggle('on',b.dataset.f===filter))}},l)));
+  bar.append(h('button',{c:'chip'+(edit?' on':''),onclick:()=>{edit=!edit;ren=null;renMsg='';render()}},edit?'Done':'Edit'));
+  w.append(si,bar,list);
+  function renderList(){
+    const k=norm(q);const out=[];
+    cats().forEach(c=>{
+      const all=S.items.filter(i=>i.c===c);if(!all.length)return;
+      const hit=s=>(' '+norm(s)).includes(' '+k);   // match at the start of a word, so "gin" finds Ginger beer but not "Original"
+      const its=all.filter(i=>fok(i)&&(!k||hit(i.n)||hit(c)));
+      if(!its.length)return;
+      const col=!k&&filter==='all'&&P.col[c];   // a folded category still shows its hits when searching or filtering
+      out.push(h('h3',{c:'cat',role:'button','aria-expanded':String(!col),onclick:()=>{P.col[c]=!P.col[c];store('homebar_prefs',P);renderList()}},c+' · '+all.filter(i=>i.s).length+'/'+all.length,h('span',{},col?'▸ show':'▾')));
+      if(col)return;
+      its.forEach(i=>{
+        if(edit&&ren===i){out.push(renameRow(i,S.items,()=>{upd();renderList()}));return}
+        out.push(h('div',{c:'item'},
+          h('button',{c:'nm','aria-label':(edit?'Rename ':'Details for ')+i.n,onclick:()=>{if(edit){ren=i;renMsg='';renderList()}else{det=i;drawSheet()}}},i.n,i.s&&i.l?h('span',{c:'tag low'},'low'):null,i.u?h('span',{c:'tag'},'added'):null,h('span',{c:'chev'},edit?'✎':'›')),
+          edit?h('button',{c:'del','aria-label':'Delete '+i.n,onclick:()=>{removeItem(i);upd();renderList()}},'✕')
+              :h('button',{c:'tg'+(i.s?' on':''),role:'switch','aria-label':i.n,'aria-checked':String(!!i.s),onclick:()=>{setStock(i,!i.s);upd();renderList()}},h('i'))));
+      });
+    });
+    if(!out.length)out.push(h('div',{c:'empty'},k?'Nothing matches "'+q+'".':filter==='low'?'Nothing is running low. Tap a bottle\'s name to mark it.':'Nothing to show here.'));
+    list.replaceChildren(...out);
+  }
+  renderList();
+  // Add an item
+  w.append(h('h3',{},'Add an item'));
+  const nm=h('input',{placeholder:'Item, e.g. Mezcal',style:'flex:1 1 100%'});
+  const sel=h('select',{style:'flex:1'},...cats().map(c=>h('option',{value:c},c)),h('option',{value:'__new'},'New category…'));
+  const nc=h('input',{placeholder:'New category name',style:'flex:1 1 100%;display:none'});
+  sel.onchange=()=>{nc.style.display=sel.value==='__new'?'':'none';if(sel.value==='__new')nc.focus()};
+  const add=()=>{const v=nm.value.trim();if(!v)return;const c=sel.value==='__new'?nc.value.trim():sel.value;if(!c){nc.focus();return}S.items.push({n:v,c,s:1,u:1});save();render()};
+  nm.addEventListener('keydown',e=>{if(e.key==='Enter')add()});
+  const pick=h('input',{type:'file',accept:'image/*',style:'display:none',onchange:e=>{const f=e.target.files[0];e.target.value='';if(f)scan(f)}});
+  w.append(h('div',{c:'row2'},nm,sel,nc,h('button',{c:'btn',onclick:add},'Add'),h('button',{c:'btn sec',onclick:()=>pick.click()},'📷 Add from photo'),pick),
+    h('div',{c:'sum'},'Photo: snap a bottle or a shelf and Gemini reads the labels. Matches are marked in stock, new ones are added, after you check the list.'));
+  // Tasting notes for everything in stock
+  w.append(h('h3',{},'Tasting notes'));
+  const inS=S.items.filter(i=>i.s).length,withN=inS-noNotes().length,running=bulk&&bulk.total;
+  const bn=h('div',{c:'sum'},running?'Getting notes… '+bulk.done+' of '+bulk.total+(bulk.msg?' · '+bulk.msg:''):(bulk&&bulk.msg)||(withN+' of '+inS+' bottles in stock have notes. Tap a name to read them.'));
+  if(running)bulkEl=bn;   // progress updates go straight to this line instead of redrawing the tab
+  w.append(h('div',{c:'row2'},running?h('button',{c:'chip warn',onclick:()=>{bulk.stop=true;bn.textContent='Stopping after the current bottle…'}},'Stop')
+    :h('button',{c:'btn sec',onclick:()=>{bulk=null;bulkNotes()}},'Get notes for everything in stock')),bn,
+    running?null:h('div',{c:'sum'},'Asks Gemini once per bottle that has no notes yet, one at a time, and keeps the answers on this device.'));
+  return w;
+}
+// ---------- Tasting notes (single and bulk) ----------
+const notesPrompt=i=>'Give concise home-bar notes for "'+i.n+'" (category: '+i.c+'). Cover: tasting notes in one or two sentences; how it is typically used; what it pairs well with (spirits, mixers, flavours, food); then 3 drinks to try, each with a one-line description. Plain text only, no markdown, under 180 words.';
+const noNotes=()=>S.items.filter(i=>i.s&&!AI.notes[i.n]);
+let bulk=null,bulkEl=null;   // {done,total,stop,msg} while running, {msg} when finished; bulkEl is the progress line on the Bar tab
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+const prog=()=>{const t='Getting notes… '+bulk.done+' of '+bulk.total+(bulk.msg?' · '+bulk.msg:'');if(bulkEl&&bulkEl.isConnected)bulkEl.textContent=t;else if(tab==='stock')render()};
+async function bulkNotes(){
+  if(bulk&&bulk.total)return;
+  const todo=noNotes();
+  if(!gkey()){bulk={msg:gerr({code:'nokey'})};render();return}
+  if(!todo.length){bulk={msg:'Every bottle in stock already has notes.'};render();return}
+  bulk={done:0,total:todo.length,stop:false,msg:''};render();
+  let err='';
+  for(const i of todo){
+    if(bulk.stop)break;
+    let tries=0,got=false;
+    for(;;){
+      try{const t=await gemini(notesPrompt(i));if(t){AI.notes[i.n]={text:t,t:Date.now()};store('homebar_ai',AI);got=true}break}
+      catch(e){
+        if(e&&e.code===429&&tries++<2){bulk.msg='Gemini quota reached, pausing 30 seconds…';prog();await wait(30000);if(bulk.stop)break;continue}
+        err=gerr(e);break;
+      }
+    }
+    if(err)break;
+    if(got){bulk.done++;bulk.msg=''}   // count it even if Stop was tapped while it was in flight
+    if(bulk.stop)break;
+    prog();
+  }
+  const left=noNotes().length,n=bulk.done;
+  bulk={msg:(bulk.stop?'Stopped. ':'')+(err?err+' ':'')+n+' bottle'+(n===1?'':'s')+' got notes'+(left?', '+left+' still without.':'.')};
+  if(tab==='stock')render();   // don't redraw another tab under the user's fingers
+}
+// ---------- Item detail sheet ----------
+const usesOf=i=>allRecipes().map(r=>({r,m:r.ing.filter(a=>!have(a))})).filter(x=>x.r.ing.some(a=>a.some(k=>rx(k).test(i.n)))).sort((p,q)=>p.m.length-q.m.length);
+function closeDet(){det=null;gdet=null;drawSheet();render()}
+const jumpSaved=x=>{det=null;gdet=null;tab='cocktails';openS=x.id;drawSheet();render();scrollTo(0,0)};
+function detail(){
+  const i=det,s=h('div',{c:'sheet',role:'dialog','aria-modal':'true','aria-label':i.n});
+  s.append(h('div',{c:'ctr'},h('h2',{},i.n),h('button',{c:'chip',onclick:closeDet},'Close')),
+    h('div',{c:'sum'},i.c+' · '+(i.s?(i.l?'In stock, running low':'In stock'):'Out of stock')));
+  // Stock and running low
+  const row=h('div',{c:'row2'},h('button',{c:'tg'+(i.s?' on':''),role:'switch','aria-checked':String(!!i.s),'aria-label':'In stock',onclick:()=>{setStock(i,!i.s);drawSheet()}},h('i')),h('span',{c:'mut'},'In stock'));
+  if(i.s)row.append(h('button',{c:'chip'+(i.l?' on':''),style:'margin-left:auto',onclick:()=>{if(i.l)delete i.l;else i.l=1;save();drawSheet()}},i.l?'Running low ✓':'Mark running low'));
+  s.append(row);
+  // Cocktails that use this item
+  const uses=usesOf(i),sv=S.saved.filter(x=>!inMake(x)&&mentions(x.text,i.n)),nu=uses.length+sv.length;   // structured saved recipes arrive via usesOf, the rest by text match
+  s.append(h('h3',{},'Cocktails using this'+(nu?' ('+nu+')':'')));
+  if(!nu)s.append(h('div',{c:'sum'},'None of the built-in or saved recipes call for this. Ask Gemini below for ideas.'));
+  uses.forEach(x=>s.append(h('div',{c:'ing'},h('span',{c:x.m.length?'n':'y'},x.m.length?'✗ ':'✓ '),
+    x.r.saved?h('button',{c:'nm',style:'flex:none',onclick:()=>jumpSaved(x.r.saved)},'★ '+x.r.name,h('span',{c:'chev'},'›')):x.r.name,
+    x.m.length?h('span',{c:'mut'},' · need '+x.m.map(a=>label(a[0])).join(', ')):null)));
+  sv.forEach(x=>s.append(h('div',{c:'ing'},h('span',{c:'y'},'★ '),h('button',{c:'nm',style:'flex:none',onclick:()=>jumpSaved(x)},x.name,h('span',{c:'chev'},'›')),h('span',{c:'mut'},' · saved recipe'))));
+  // Gemini tasting notes
+  const nt=AI.notes[i.n],out=h('div',{c:'out'});out.textContent=nt?nt.text:'';
+  const note=h('span',{c:'sum'}),say=t=>{note.textContent=t};
+  const ab=h('button',{c:'btn',onclick:()=>ask(notesPrompt(i),out,t=>{AI.notes[i.n]={text:t,t:Date.now()};store('homebar_ai',AI);drawSheet()},ab)},nt?'Ask again':'Tasting notes & uses');
+  const gr=h('div',{c:'row2'},ab);
+  if(nt)gr.append(...outChips(()=>i.n+'\n\n'+nt.text,i.n,say),note);
+  s.append(h('h3',{},'Notes from Gemini'),gr,out);
+  // Your own notes
+  const ta=h('textarea',{rows:'2',placeholder:'Your own notes, e.g. too sweet for a Negroni'});ta.value=i.note||'';
+  ta.oninput=()=>{if(ta.value.trim())i.note=ta.value;else delete i.note;save()};
+  s.append(h('h3',{},'Your notes'),ta);
+  // Link
+  const ui=h('input',{type:'url',placeholder:'Paste a link (optional)',style:'width:100%',inputmode:'url'});ui.value=i.url||'';
+  ui.onchange=()=>{let v=ui.value.trim();if(v&&!/^https?:\/\//i.test(v))v='https://'+v;if(v)i.url=v;else delete i.url;save();drawSheet()};
+  const lk=h('div',{c:'lk',style:'margin-top:8px'});
+  if(i.url)lk.append(h('a',{href:i.url,target:'_blank',rel:'noopener'},'Open link'));
+  lk.append(h('a',{href:'https://www.google.com/search?q='+encodeURIComponent(i.n),target:'_blank',rel:'noopener'},'Search the web'));
+  s.append(h('h3',{},'Link'),ui,lk);
+  return s;
+}
+// ---------- Essentials detail sheet ----------
+const gearPrompt=g=>'Give concise home-bar guidance for "'+g.n+'" ('+g.c+(g.w?', used for: '+g.w:'')+'). Cover: what it is for in one or two sentences; how to use it well in 2 or 3 practical tips; one common mistake; and whether an everyday kitchen substitute works. Plain text only, no markdown, under 150 words.';
+function gdetail(){
+  const g=gdet,s=h('div',{c:'sheet',role:'dialog','aria-modal':'true','aria-label':g.n});
+  s.append(h('div',{c:'ctr'},h('h2',{},g.n),h('button',{c:'chip',onclick:closeDet},'Close')),h('div',{c:'sum'},g.c+' · '+(g.s?'In your kit':'Not got yet')));
+  s.append(h('div',{c:'row2'},h('button',{c:'tg'+(g.s?' on':''),role:'switch','aria-checked':String(!!g.s),'aria-label':'In your kit',onclick:()=>{g.s=g.s?0:1;save();drawSheet()}},h('i')),h('span',{c:'mut'},'I have this')));
+  // What it is for (editable)
+  const wi=h('input',{placeholder:'What it is for',style:'width:100%'});wi.value=g.w||'';
+  wi.onchange=()=>{const v=wi.value.trim();if(v)g.w=v;else delete g.w;save()};
+  s.append(h('h3',{},'What it is for'),wi);
+  // Gemini tips
+  const nt=AI.gear[g.n],out=h('div',{c:'out'});out.textContent=nt?nt.text:'';
+  const note=h('span',{c:'sum'}),say=t=>{note.textContent=t};
+  const ab=h('button',{c:'btn',onclick:()=>ask(gearPrompt(g),out,t=>{AI.gear[g.n]={text:t,t:Date.now()};store('homebar_ai',AI);drawSheet()},ab)},nt?'Ask again':'How to use it');
+  const gr=h('div',{c:'row2'},ab);
+  if(nt)gr.append(...outChips(()=>g.n+'\n\n'+nt.text,g.n,say),note);
+  s.append(h('h3',{},'Tips from Gemini'),gr,out);
+  // Own notes
+  const ta=h('textarea',{rows:'2',placeholder:'Your own notes, e.g. the one in the top drawer'});ta.value=g.note||'';
+  ta.oninput=()=>{if(ta.value.trim())g.note=ta.value;else delete g.note;save()};
+  s.append(h('h3',{},'Your notes'),ta);
+  return s;
+}
+function drawSheet(){const on=det||gdet;$('#sheet').replaceChildren(...(on?[h('div',{c:'veil',onclick:closeDet}),det?detail():gdetail()]:[]));document.body.style.overflow=on?'hidden':''}
+document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;const m=$('#manual');if(m){m.remove();return}if(det||gdet)closeDet()});
+// ---------- Cocktails tab ----------
+function card(r,miss){
+  const key=r.saved?'s:'+r.saved.id:r.name,o=open===key,c=h('div',{c:'card'});
+  c.append(h('div',{c:'ct',onclick:()=>{open=o?null:key;render()}},
+    h('div',{c:'ctr'},h('b',{},(r.saved?'★ ':'')+r.name),h('span',{c:miss.length?'mut':'y'},miss.length?'Need '+miss.length:'Ready ✓')),
+    miss.length?h('div',{c:'need'},miss.map(a=>label(a[0])).join(', ')):null));
+  if(o&&r.saved){   // a saved recipe: show its own text instead of asking Gemini again
+    const x=r.saved,note=h('span',{c:'sum'}),say=t=>{note.textContent=t};
+    c.append(...ingLines(r.ing),h('div',{c:'out'},x.text),h('div',{c:'row2'},...outChips(()=>x.text,x.name,say),h('button',{c:'chip',onclick:()=>jumpSaved(x)},'Open in My recipes'),note));
+    return c;
+  }
+  if(o){
+    c.append(...ingLines(r.ing));
+    const out=h('div',{c:'out'});out.textContent=AI.rec[r.name]||'';
+    const note=h('span',{c:'sum'}),say=t=>{note.textContent=t};
+    const using=[...new Set(r.ing.map(a=>found(a).map(i=>i.n)).flat())];   // the actual bottles it would be made with
+    const p='Give a concise home-bar recipe for a '+r.name+'.'+(using.length?' I will be making it with these exact products: '+using.join(', ')+'. Tailor the amounts, balance and garnish to them and name them in the ingredients list.':'')+kitLine(true)+' Lay it out as "Ingredients:" with one per line and all liquids in ml (never oz), then "Method:" as 3 short numbered steps ending with the glass and garnish. Plain text only, no markdown, no asterisks.';
+    const hb=h('button',{c:'btn',onclick:()=>ask(p,out,t=>{AI.rec[r.name]=t;store('homebar_ai',AI);render()},hb)},AI.rec[r.name]?'Ask again':'How to make');
+    const row=h('div',{c:'row2'},hb);
+    if(AI.rec[r.name])row.append(saveChip(r.name,AI.rec[r.name],'recipe'),...outChips(()=>r.name+'\n\n'+AI.rec[r.name],r.name,say),note);
+    c.append(row,out);
+  }
+  return c;
+}
+function savedCard(x){
+  const o=openS===x.id,c=h('div',{c:'card'});
+  c.append(h('div',{c:'ct',onclick:()=>{openS=o?null:x.id;delS=null;render()}},
+    h('div',{c:'ctr'},h('b',{},x.name),inMake(x)?(m=>h('span',{c:m.length?'mut':'y'},m.length?'Need '+m.length:'Ready ✓'))(x.ing.filter(a=>!have(a))):h('span',{c:'mut'},o?'▾':'›')),
+    h('div',{c:'need'},(x.src==='recipe'?'From How to make':'From Surprise me')+(x.extra?' · using '+x.extra:'')+' · '+new Date(x.t).toLocaleDateString()+(inMake(x)?' · in Make now':''))));
+  if(o){
+    const note=h('span',{c:'sum'}),say=t=>{note.textContent=t},busy=strBusy===x.id;
+    if(inMake(x))c.append(...ingLines(x.ing));
+    c.append(h('div',{c:'out'},x.text),h('div',{c:'row2'},...outChips(()=>x.text,x.name,say),
+      inMake(x)?h('button',{c:'chip',onclick:()=>{delete x.ing;save();render()}},'Remove from Make now')
+        :h('button',{c:'chip',disabled:busy||strBusy?'':null,onclick:()=>structure(x)},busy?'Reading the recipe…':'Add to Make now'),
+      h('button',{c:'chip warn',onclick:()=>{if(delS!==x.id){delS=x.id;render();return}S.saved=S.saved.filter(y=>y!==x);delS=null;save();render()}},delS===x.id?'Tap again to delete':'Delete'),note));
+    if(strMsg[x.id])c.append(h('div',{c:'sum'},strMsg[x.id]));
+    else if(!inMake(x)&&!busy)c.append(h('div',{c:'sum'},'"Add to Make now" asks Gemini once to read the ingredients, so this recipe counts in Make now, Buy next and the bottle sheets.'));
+  }
+  return c;
+}
+function cocks(){
+  const w=h('div');w.append(h('h1',{},'Cocktails'));
+  if(!stocked().length)w.append(h('div',{c:'sum'},'Mark what you have in the Bar tab and matches will show up here.'));
+  const bn=buyNext(),low=S.items.filter(i=>i.s&&i.l);
+  if(low.length){
+    w.append(h('h3',{},'Running low ('+low.length+')'));
+    low.forEach(i=>w.append(h('div',{c:'item'},h('button',{c:'nm','aria-label':'Details for '+i.n,onclick:()=>{det=i;drawSheet()}},i.n,h('span',{c:'chev'},'›')),h('span',{c:'tag low'},'low'))));
+  }
+  if(bn.length){
+    w.append(h('h3',{},'Buy next'));
+    bn.forEach(c=>w.append(h('div',{c:'card'},h('div',{c:'ctr'},h('b',{},label(c.a)),h('span',{c:'badge ok'},'Unlocks '+c.full.length)),
+      h('div',{c:'need'},c.full.join(', ')+(c.closer.length?' · brings '+c.closer.length+' more a step closer':'')))));
+  }
+  if(low.length||bn.length){
+    const note=h('span',{c:'sum'}),say=t=>{note.textContent=t};
+    const txt=()=>[low.length?'Running low:\n'+low.map(i=>'- '+i.n).join('\n'):'',bn.length?'Buy next:\n'+bn.map(c=>'- '+label(c.a)).join('\n'):''].filter(Boolean).join('\n\n');
+    w.append(h('div',{c:'row2'},canShare()?h('button',{c:'chip',onclick:()=>share(txt(),'Shopping list',say)},'Share shopping list'):null,h('button',{c:'chip',onclick:()=>copy(txt(),say)},'Copy shopping list'),note));
+  }
+  if(S.saved.length){w.append(h('h3',{},'My recipes ('+S.saved.length+')'));S.saved.forEach(x=>w.append(savedCard(x)))}
+  const rows=allRecipes().map(r=>({r,m:r.ing.filter(a=>!have(a))}));
+  [['Make now',x=>x.m.length===0],['One ingredient away',x=>x.m.length===1],['Further away',x=>x.m.length>1]].forEach(([t,f])=>{
+    const g=rows.filter(f).sort((p,q)=>p.m.length-q.m.length);if(!g.length)return;
+    w.append(h('h3',{},t+' ('+g.length+')'));g.forEach(x=>w.append(card(x.r,x.m)));
+  });
+  return w;
+}
+// ---------- Ideas tab ----------
+function ideas(){
+  const w=h('div');w.append(h('h1',{},'Ideas'),h('div',{c:'sum'},'Two suggestions at a time, based on what is in stock.'));
+  // Two parameters: mood (how you feel) and style (how the drink is built)
+  const STYLES={Any:'',Long:'a tall drink lengthened with a mixer or soda, served over ice in a highball',Short:'a spirit-forward drink with little or no mixer, served in a rocks or coupe glass',Bittersweet:'built on bitter aperitifs or amari balanced with sweetness, Negroni territory',Dry:'crisp and not sweet, Martini territory',Fizzy:'topped with soda, tonic, prosecco or ginger beer',Creamy:'rich and dessert-like, using cream or cream liqueurs',Fruity:'juice- or fruit-led and easy drinking'};
+  const bar=h('div',{c:'row2'}),bar2=h('div',{c:'row2'});
+  ['Anything','Refreshing','Strong','Sweet','Sour','Light'].forEach(m=>bar.append(h('button',{c:'chip'+(mood===m?' on':''),onclick:()=>{mood=m;render()}},m)));
+  Object.keys(STYLES).forEach(s=>bar2.append(h('button',{c:'chip'+(style===s?' on':''),onclick:()=>{style=s;render()}},s)));
+  const out=h('div',{c:'out'});out.textContent=AI.ideas?AI.ideas.text:'';
+  const note=h('span',{c:'sum'}),say=t=>{note.textContent=t};
+  // Free-text ingredient to build around (anything, not just bar stock)
+  const xi=h('input',{placeholder:'Use up something odd, e.g. a jar of lychees, fresh basil',style:'width:100%','aria-label':'Extra ingredient',oninput:e=>{extra=e.target.value}});xi.value=extra;
+  const go=h('button',{c:'btn',onclick:()=>{
+    const s=stocked();if(!s.length){out.textContent='Mark some items as in stock first.';return}
+    const x=extra.trim(),st=style!=='Any'?' Style: '+style+', meaning '+STYLES[style]+'. Both drinks must fit that style.':'';
+    const p='I have a home bar with these in stock: '+s.join(', ')+'. Assume ice and water.'+kitLine(false)
+      +(x?' I also have this on hand and want to use it: "'+x+'". Both suggestions must feature it. If it is not a usual cocktail ingredient, improvise sensibly: say how to prepare it (muddle, infuse, syrup, garnish, rinse) and which of my bottles it suits best, and pick drinks that genuinely work rather than forcing it in.':'')
+      +' Suggest exactly 2 cocktails I can make right now, one classic and one creative riff. Mood: '+mood+'.'+st
+      +' Lay out each one exactly like this: the drink name on its own line, then "Ingredients:" with one ingredient per line and all liquids measured in ml (never oz), then "Method:" as 2 to 4 short numbered steps ending with the glass and garnish. Leave a blank line between the two drinks.'
+      +(x?'':' Finish with one line naming the single bottle'+(S.gear.some(g=>g.s)?', or one piece of kit I do not have,':'')+' that would unlock the most new drinks.')+' Plain text, no markdown, no asterisks.';
+    ask(p,out,t=>{AI.ideas={text:t,mood,style,extra:x,t:Date.now()};store('homebar_ai',AI);render()},go)}},'Surprise me');
+  xi.addEventListener('keydown',e=>{if(e.key==='Enter')go.click()});
+  const row=h('div',{c:'row2'},go);
+  if(extra.trim())row.append(h('button',{c:'chip',onclick:()=>{extra='';render()}},'Clear ingredient'));
+  w.append(h('h3',{},'Mood'),bar,h('h3',{},'Style'),bar2,h('h3',{},'Something to use up'),xi,row);
+  if(AI.ideas){row.append(...outChips(()=>AI.ideas.text,'Cocktail ideas',say),note);
+    w.append(h('div',{c:'sum'},'Last ideas · '+AI.ideas.mood+(AI.ideas.style&&AI.ideas.style!=='Any'?' · '+AI.ideas.style:'')+(AI.ideas.extra?' · using: '+AI.ideas.extra:'')+' · '+new Date(AI.ideas.t).toLocaleDateString()))}
+  w.append(out);
+  if(AI.ideas){
+    const parts=splitIdeas(AI.ideas.text),sv=h('div',{c:'row2'});
+    (parts.length?parts:[{name:'Ideas · '+AI.ideas.mood,text:AI.ideas.text}]).forEach(p=>{const done=isSaved(p.text);
+      sv.append(h('button',{c:'chip'+(done?' on':''),disabled:done?'':null,onclick:()=>{keep(p.name,p.text,'ideas',AI.ideas.extra);render()}},(done?'Saved: ':'Save: ')+p.name))});
+    w.append(h('div',{c:'sum',style:'margin-top:10px'},'Keep one for later? Saved recipes live under Cocktails.'),sv);
+    // One tap to put the odd ingredient into the bar list so it counts next time
+    const x=(AI.ideas.extra||'').trim(),cs=cats();
+    if(x&&!S.items.some(i=>norm(i.n)===norm(x))){
+      const sel=h('select',{'aria-label':'Category for '+x},...cs.map(c=>h('option',{value:c},c)));sel.value=cs.includes('Garnish & fresh')?'Garnish & fresh':cs[0];
+      w.append(h('div',{c:'row2'},h('button',{c:'chip',onclick:()=>{S.items.push({n:cap(x),c:sel.value,s:1,u:1});save();render()}},'Add "'+cap(x)+'" to my bar'),sel));
+    }
+  }
+  return w;
+}
+// ---------- Essentials tab ----------
+let gf='all',gdet=null;
+function removeGear(g){S.gear=S.gear.filter(x=>x!==g);if(!S.gear.some(x=>x.n===g.n)&&AI.gear[g.n]){delete AI.gear[g.n];store('homebar_ai',AI)}save()}
+function gear(){
+  const w=h('div');const own=S.gear.filter(g=>g.s).length;
+  w.append(h('h1',{},'Bar essentials'),h('div',{c:'sum'},own+' of '+S.gear.length+' in your kit'+(own?' · tap a name for tips':' · tick what you already own')));
+  const bar=h('div',{c:'row2'});
+  [['all','All'],['in','Have'],['out','Missing']].forEach(([f,l])=>bar.append(h('button',{c:'chip'+(gf===f?' on':''),onclick:()=>{gf=f;render()}},l)));
+  bar.append(h('button',{c:'chip'+(edit?' on':''),onclick:()=>{edit=!edit;ren=null;renMsg='';render()}},edit?'Done':'Edit'));
+  w.append(bar);
+  if(edit)w.append(h('div',{c:'sum'},'Tap a name to rename it, ✕ to delete.'));
+  const gcats=[...new Set([...Object.keys(GEAR),...S.gear.map(g=>g.c)])];
+  let shown=0;
+  gcats.forEach(c=>{
+    const all=S.gear.filter(g=>g.c===c);const its=all.filter(g=>gf==='all'||(gf==='in')===!!g.s);if(!its.length)return;shown+=its.length;
+    w.append(h('h3',{},c+' · '+all.filter(g=>g.s).length+'/'+all.length));
+    its.forEach(g=>{
+      if(edit&&ren===g){w.append(renameRow(g,S.gear,render));return}
+      w.append(h('div',{c:'item'},
+        edit?h('button',{c:'nm','aria-label':'Rename '+g.n,onclick:()=>{ren=g;renMsg='';render()}},g.n,h('span',{c:'chev'},'✎'))
+            :h('button',{c:'nm','aria-label':'Details for '+g.n,onclick:()=>{gdet=g;drawSheet()}},h('div',{c:'lbl'},h('span',{},g.n,g.u?h('span',{c:'tag'},'added'):null,h('span',{c:'chev'},'›')),g.w?h('span',{c:'why'},g.w):null)),
+        edit?h('button',{c:'del','aria-label':'Delete '+g.n,onclick:()=>{removeGear(g);render()}},'✕')
+            :h('button',{c:'tg'+(g.s?' on':''),role:'switch','aria-label':g.n,'aria-checked':String(!!g.s),onclick:()=>{g.s=g.s?0:1;save();render()}},h('i'))));
+    });
+  });
+  if(!shown)w.append(h('div',{c:'empty'},gf==='out'?'Nothing missing. Your kit is complete.':'Nothing to show here.'));
+  w.append(h('h3',{},'Add to the list'));
+  const nm=h('input',{placeholder:'Item, e.g. Lewis bag',style:'flex:1 1 100%'});
+  const wy=h('input',{placeholder:'What it is for (optional)',style:'flex:1 1 100%'});
+  const sel=h('select',{style:'flex:1'},...gcats.map(c=>h('option',{value:c},c)),h('option',{value:'__new'},'New category…'));
+  const nc=h('input',{placeholder:'New category name',style:'flex:1 1 100%;display:none'});
+  sel.onchange=()=>{nc.style.display=sel.value==='__new'?'':'none';if(sel.value==='__new')nc.focus()};
+  const add=()=>{const v=nm.value.trim();if(!v)return;const c=sel.value==='__new'?nc.value.trim():sel.value;if(!c){nc.focus();return}S.gear.push({n:v,c,w:wy.value.trim()||undefined,s:1,u:1});save();render()};
+  nm.addEventListener('keydown',e=>{if(e.key==='Enter')add()});
+  w.append(h('div',{c:'row2'},nm,wy,sel,nc,h('button',{c:'btn',onclick:add},'Add')));
+  return w;
+}
+// ---------- Settings tab ----------
+function settings(){
+  const w=h('div');w.append(h('h1',{},'Settings'));
+  // Appearance
+  w.append(h('h3',{},'Appearance'));
+  const ap=h('div',{c:'row2'});
+  [['auto','Match phone'],['light','Light'],['dark','Dark']].forEach(([v,l])=>ap.append(h('button',{c:'chip'+(P.theme===v?' on':''),onclick:()=>{P.theme=v;store('homebar_prefs',P);applyTheme();render()}},l)));
+  w.append(ap);
+  // Gemini
+  w.append(h('h3',{},'AI (Gemini)'));
+  const ki=h('input',{type:'password',placeholder:'Gemini API key',autocomplete:'off',style:'flex:1 1 100%'});ki.value=gkey();
+  const mi=h('input',{placeholder:'Model, e.g. '+GDEF,style:'flex:1 1 100%'});mi.value=gmodel();
+  const kn=h('div',{c:'sum'});
+  if(gkey())kn.textContent='Key saved on this device. It powers "How to make", "Surprise me", "Add from photo" and tasting notes.';
+  else kn.append('No key yet. Create a free key at ',h('a',{href:'https://aistudio.google.com/apikey',target:'_blank',rel:'noopener'},'Google AI Studio'),', paste it above and tap Save.');
+  const keep=()=>gset(ki.value.trim(),mi.value.trim());
+  const tb=h('button',{c:'chip',onclick:()=>test()},'Test');
+  const test=async()=>{keep();if(!gkey()){kn.textContent=gerr({code:'nokey'});return}if(tb.disabled)return;tb.disabled=true;kn.textContent='Testing…';
+    try{const t=await gemini('Reply with the single word OK.',null,m=>{kn.textContent='Testing… trying '+gShort(m)});const w=gWhy();kn.textContent='Gemini replied: '+(t||'(empty)')+(w?'. '+w:' · key and model work.')}catch(e){kn.textContent=gerr(e)}finally{tb.disabled=false}};
+  w.append(h('div',{c:'row2'},ki,mi),
+    h('div',{c:'row2'},h('button',{c:'btn',onclick:()=>{keep();render()}},'Save'),tb,h('button',{c:'chip',onclick:()=>{gset('',gmodel());render()}},'Clear key')),kn,
+    h('div',{c:'sum',style:'margin-top:8px'},'If this model is busy, out of quota or not found, the app tries the other free-tier models in turn: '+gorder().slice(1).join(', ')+'. An answer from a stand-in says so underneath.'));
+  // Backup
+  const note=h('div',{c:'sum'}),say=t=>{note.textContent=t};note.textContent=bkMsg;bkMsg='';
+  const str=v=>typeof v==='string'&&v.trim()?v:undefined,obj=v=>v&&typeof v==='object'&&!Array.isArray(v)?v:{};
+  // Accepts both the old item-only backup and the full v12 backup (items, gear, saved recipes, Gemini cache, preferences). Never the key.
+  const restore=txt=>{try{const d=JSON.parse(txt);if(!d||!Array.isArray(d.items)||!d.items.every(i=>i&&typeof i.n==='string'&&typeof i.c==='string'))throw 0;
+    const gear=Array.isArray(d.gear)?d.gear.filter(g=>g&&typeof g.n==='string').map(g=>({n:g.n,c:typeof g.c==='string'?g.c:'Equipment',w:g.w?String(g.w):undefined,s:g.s?1:0,u:g.u?1:undefined,note:str(g.note)})):seedGear();
+    const ingOf=v=>{if(!Array.isArray(v))return undefined;const g=v.map(a=>Array.isArray(a)?a.filter(o=>typeof o==='string'&&o.trim()).slice(0,3):[]).filter(a=>a.length).slice(0,12);return g.length?g:undefined};
+    const saved=Array.isArray(d.saved)?d.saved.filter(x=>x&&typeof x.name==='string'&&typeof x.text==='string').map(x=>({id:String(x.id||uid()),name:x.name,text:x.text,src:x.src==='recipe'?'recipe':'ideas',extra:str(x.extra),ing:ingOf(x.ing),t:+x.t||Date.now()})):[];
+    const url=v=>typeof v==='string'&&/^https?:\/\//i.test(v.trim())?v.trim():undefined;
+    S={items:d.items.map(i=>({n:i.n,c:i.c,s:i.s?1:0,u:i.u?1:undefined,l:i.s&&i.l?1:undefined,note:str(i.note),url:url(i.url)})),gear,saved};save();
+    let more='';
+    if(d.ai){const a=obj(d.ai);
+      AI.rec=Object.fromEntries(Object.entries(obj(a.rec)).filter(([k,v])=>typeof v==='string'));
+      const nmap=o=>Object.fromEntries(Object.entries(obj(o)).filter(([k,v])=>v&&typeof v.text==='string').map(([k,v])=>[k,{text:v.text,t:+v.t||Date.now()}]));
+      AI.notes=nmap(a.notes);AI.gear=nmap(a.gear);
+      const id=obj(a.ideas);AI.ideas=typeof id.text==='string'?{text:id.text,mood:str(id.mood)||'Anything',style:str(id.style)||'Any',extra:str(id.extra)||'',t:+id.t||Date.now()}:null;
+      if(AI.ideas){mood=AI.ideas.mood;style=AI.ideas.style;extra=AI.ideas.extra}
+      store('homebar_ai',AI);
+      const n=Object.keys(AI.notes).length,r=Object.keys(AI.rec).length,k=Object.keys(AI.gear).length;more=', '+n+' tasting note'+(n===1?'':'s')+(k?', '+k+' kit tip'+(k===1?'':'s'):'')+' and '+r+' cached recipe'+(r===1?'':'s')}
+    if(d.prefs){const p=obj(d.prefs);if(['auto','light','dark'].includes(p.theme))P.theme=p.theme;P.col=obj(p.col);applyTheme()}
+    P.lastBk=Date.now();P.chg=0;P.bkLater=0;store('homebar_prefs',P);   // the file just restored is itself a backup of this state
+    bkMsg='Restored '+S.items.length+' items, '+S.gear.length+' essentials, '+saved.length+' saved recipe'+(saved.length===1?'':'s')+more+'.';render()}catch(e){say('That does not look like a Home Bar backup.')}};
+  const bkl=h('div',{c:'sum'});
+  const bkLine=()=>{bkl.textContent=P.lastBk?'Last backup: '+new Date(P.lastBk).toLocaleDateString()+' ('+ago(P.lastBk)+')'+(S.t>P.lastBk?' · changed since':' · up to date'):'No backup taken yet.'};bkLine();
+  const exp=()=>exportBackup(t=>{say(t);bkLine()});
+  const fi=h('input',{type:'file',accept:'.json,application/json',onchange:async e=>{const f=e.target.files[0];if(!f)return;try{restore(await f.text())}catch(x){say('Could not read that file.')}}});
+  const ta=h('textarea',{rows:'3',placeholder:'…or paste backup text here'});
+  w.append(h('h3',{},'Backup'),h('div',{c:'sum'},'Everything is saved on this device only: your lists, tasting notes, saved recipes and settings. The API key is never included. For a copy that survives a new phone, export a backup: where the browser offers sharing this opens the share sheet so you can send it straight to OneDrive, otherwise it downloads the file. A reminder appears on the Bar tab when a backup is overdue.'),
+    h('div',{c:'sum'},canShare()?null:'Sharing is not available at this address. On Android, opening the file from a file manager gives a content:// address with no share sheet; opening it in Chrome at a file:/// address (for example file:///sdcard/Download/Home%20Bar.html) brings the share sheet and clipboard back. Chrome keeps data per address, so export here first and restore there.'),
+    bkl,h('div',{c:'row2'},h('button',{c:'btn',onclick:exp},'Export backup')),h('div',{c:'sum'},'Restore from a backup file:'),h('div',{c:'row2'},fi),ta,
+    h('div',{c:'row2'},h('button',{c:'chip',onclick:()=>restore(ta.value)},'Restore from pasted text')),note);
+  // Defaults
+  const dn=h('div',{c:'sum'});
+  w.append(h('h3',{},'Default items'),h('div',{c:'sum'},'"Restore missing defaults" adds back any default bottle or essential you deleted and keeps everything you added. "Reset everything" wipes both lists, saved recipes and all cached Gemini answers and starts again from the defaults. Your key and appearance stay.'),
+    h('div',{c:'row2'},h('button',{c:'chip',onclick:()=>{const n=restoreDefaults();dn.textContent=n?n+' default item'+(n>1?'s':'')+' added back.':'All defaults are already present.'}},'Restore missing defaults'),
+      h('button',{c:'chip warn',onclick:()=>{if(!confirmReset){confirmReset=true;render();return}resetAll();confirmReset=false;render()}},confirmReset?'Tap again to reset everything':'Reset everything')),dn);
+  w.append(h('h3',{},'About'),h('div',{c:'sum'},'Home Bar '+VERSION+' · '+S.items.length+' items · '+S.gear.length+' essentials · '+S.saved.length+' saved recipe'+(S.saved.length===1?'':'s')+' · data stays on this device.'));
+  return w;
+}
+// ---------- Render ----------
+function render(){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.t===tab));
+  $('#main').replaceChildren(tab==='stock'?stock():tab==='cocktails'?cocks():tab==='ideas'?ideas():tab==='gear'?gear():settings());
+}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{tab=b.dataset.t;confirmReset=false;delS=null;ren=null;renMsg='';edit=false;scanMsg='';det=null;gdet=null;drawSheet();render();scrollTo(0,0)}));
+applyTheme();render();
+</script></body></html>
