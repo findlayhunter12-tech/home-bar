@@ -66,7 +66,7 @@ a{color:var(--acc)}
 <div id="sheet"></div>
 <nav><button class="tab" data-t="stock">🍾 Bar</button><button class="tab" data-t="cocktails">🍸 Cocktails</button><button class="tab" data-t="ideas">✨ Ideas</button><button class="tab" data-t="gear">🧰 Essentials</button><button class="tab" data-t="settings">⚙️ Settings</button></nav>
 <script>
-const VERSION='v19';
+const VERSION='v20';
 // ---------- Default data ----------
 // Starting list for a new install: [in stock, not in stock] per category. Deliberately generic and
 // all "not in stock" so you tick what you own (or restore a backup). Names match the recipe keys in R.
@@ -524,6 +524,20 @@ async function bulkNotes(){
 const usesOf=i=>allRecipes().map(r=>({r,m:r.ing.filter(a=>!have(a))})).filter(x=>x.r.ing.some(a=>a.some(k=>rx(k).test(i.n)))).sort((p,q)=>p.m.length-q.m.length);
 function closeDet(){det=null;gdet=null;drawSheet();render()}
 const jumpSaved=x=>{det=null;gdet=null;tab='cocktails';openS=x.id;drawSheet();render();scrollTo(0,0)};
+// Category picker for the detail sheets: existing categories plus "New category…". Moving an item keeps
+// its notes, link and stock state (they hang off the item and its name, not the category).
+const gearCats=()=>[...new Set([...Object.keys(GEAR),...S.gear.map(g=>g.c)])];
+function catPicker(x,list){
+  const sel=h('select',{style:'flex:1','aria-label':'Category'},...list.map(c=>h('option',{value:c},c)),h('option',{value:'__new'},'New category…'));
+  sel.value=x.c;
+  const nc=h('input',{placeholder:'New category name',style:'flex:1 1 100%;display:none','aria-label':'New category name'});
+  const ok=h('button',{c:'chip',style:'display:none'},'Move');
+  const move=c=>{c=c.trim();if(!c||c===x.c){drawSheet();return}x.c=c;save();drawSheet()};
+  sel.onchange=()=>{const n=sel.value==='__new';nc.style.display=ok.style.display=n?'':'none';if(n)nc.focus();else move(sel.value)};
+  ok.onclick=()=>{if(nc.value.trim())move(nc.value);else nc.focus()};
+  nc.addEventListener('keydown',e=>{if(e.key==='Enter')ok.click()});
+  return h('div',{c:'row2'},sel,ok,nc);
+}
 function detail(){
   const i=det,s=h('div',{c:'sheet',role:'dialog','aria-modal':'true','aria-label':i.n});
   s.append(h('div',{c:'ctr'},h('h2',{},i.n),h('button',{c:'chip',onclick:closeDet},'Close')),
@@ -531,7 +545,7 @@ function detail(){
   // Stock and running low
   const row=h('div',{c:'row2'},h('button',{c:'tg'+(i.s?' on':''),role:'switch','aria-checked':String(!!i.s),'aria-label':'In stock',onclick:()=>{setStock(i,!i.s);drawSheet()}},h('i')),h('span',{c:'mut'},'In stock'));
   if(i.s)row.append(h('button',{c:'chip'+(i.l?' on':''),style:'margin-left:auto',onclick:()=>{if(i.l)delete i.l;else i.l=1;save();drawSheet()}},i.l?'Running low ✓':'Mark running low'));
-  s.append(row);
+  s.append(row,h('h3',{},'Category'),catPicker(i,cats()));
   // Cocktails that use this item
   const uses=usesOf(i),sv=S.saved.filter(x=>!inMake(x)&&mentions(x.text,i.n)),nu=uses.length+sv.length;   // structured saved recipes arrive via usesOf, the rest by text match
   s.append(h('h3',{},'Cocktails using this'+(nu?' ('+nu+')':'')));
@@ -565,7 +579,7 @@ const gearPrompt=g=>'Give concise home-bar guidance for "'+g.n+'" ('+g.c+(g.w?',
 function gdetail(){
   const g=gdet,s=h('div',{c:'sheet',role:'dialog','aria-modal':'true','aria-label':g.n});
   s.append(h('div',{c:'ctr'},h('h2',{},g.n),h('button',{c:'chip',onclick:closeDet},'Close')),h('div',{c:'sum'},g.c+' · '+(g.s?'In your kit':'Not got yet')));
-  s.append(h('div',{c:'row2'},h('button',{c:'tg'+(g.s?' on':''),role:'switch','aria-checked':String(!!g.s),'aria-label':'In your kit',onclick:()=>{g.s=g.s?0:1;save();drawSheet()}},h('i')),h('span',{c:'mut'},'I have this')));
+  s.append(h('div',{c:'row2'},h('button',{c:'tg'+(g.s?' on':''),role:'switch','aria-checked':String(!!g.s),'aria-label':'In your kit',onclick:()=>{g.s=g.s?0:1;save();drawSheet()}},h('i')),h('span',{c:'mut'},'I have this')),h('h3',{},'Category'),catPicker(g,gearCats()));
   // What it is for (editable)
   const wi=h('input',{placeholder:'What it is for',style:'width:100%'});wi.value=g.w||'';
   wi.onchange=()=>{const v=wi.value.trim();if(v)g.w=v;else delete g.w;save()};
@@ -705,7 +719,7 @@ function gear(){
   bar.append(h('button',{c:'chip'+(edit?' on':''),onclick:()=>{edit=!edit;ren=null;renMsg='';render()}},edit?'Done':'Edit'));
   w.append(bar);
   if(edit)w.append(h('div',{c:'sum'},'Tap a name to rename it, ✕ to delete.'));
-  const gcats=[...new Set([...Object.keys(GEAR),...S.gear.map(g=>g.c)])];
+  const gcats=gearCats();
   let shown=0;
   gcats.forEach(c=>{
     const all=S.gear.filter(g=>g.c===c);const its=all.filter(g=>gf==='all'||(gf==='in')===!!g.s);if(!its.length)return;shown+=its.length;

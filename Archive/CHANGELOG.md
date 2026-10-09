@@ -2,6 +2,10 @@
 
 The working file is always `Home Bar.html` in the folder above. Before each change the previous version is copied here as `Home Bar v{N} {date} {note}.html`, so each archived file is the final state of that version. Those archived copies stay on the owner's PC and are not in the Git repository, because versions up to v18 carry a personal starting list; from v19 the Git history holds every version.
 
+## v20, 2026-10-09: Change category
+- Bottle sheet and Essentials sheet: a Category picker under the stock switch moves the item to another category, or to a new one via "New category…". Notes, link, tasting notes and stock state stay with it. An emptied custom category disappears from the list.
+- Moving a bottle into or out of Non-alcoholic spirits changes whether it counts towards cocktails, as before for items added there.
+
 ## v19, 2026-10-09: Generic starting list
 - A new install starts with generic names (London dry gin, Scotch whisky, Coffee liqueur, Aromatic bitters and so on), all marked as not in stock, the same way the Essentials list starts. Every built-in recipe can still be matched from them. An existing list is untouched; restore a backup to bring back a specific bar.
 - Eggs added to the fresh list.
