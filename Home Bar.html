@@ -67,7 +67,7 @@ a{color:var(--acc)}
 <div id="sheet"></div>
 <nav><button class="tab" data-t="stock">🍾 Bar</button><button class="tab" data-t="cocktails">🍸 Cocktails</button><button class="tab" data-t="ideas">✨ Ideas</button><button class="tab" data-t="gear">🧰 Essentials</button><button class="tab" data-t="settings">⚙️ Settings</button></nav>
 <script>
-const VERSION='v22';
+const VERSION='v23';
 // ---------- Default data ----------
 // Starting list for a new install: [in stock, not in stock] per category. Deliberately generic and
 // all "not in stock" so you tick what you own (or restore a backup). Names match the recipe keys in R.
@@ -106,7 +106,8 @@ const R=[
 `Daiquiri;white rum|spiced rum|dark rum;${LIME};${SYR}`,`Margarita;tequila;${TRIPLE};${LIME}`,`Whiskey Sour;bourbon|rye whiskey|whisky;${LEMON};${SYR}`,
 `Sidecar;${BRANDY};${TRIPLE};${LEMON}`,`Gimlet;gin;${LIME};${SYR}`,`Aviation;gin;${MARA};crème de violette|creme de violette|violette;${LEMON}`,
 `Clover Club;gin;${LEMON};raspberry syrup|raspberries;${EGG}`,`Pisco Sour;pisco;${LIME};${SYR};${EGG};${BITT}`,
-`Amaretto Sour;amaretto|disaronno;bourbon;${LEMON};${SYR};${EGG}`,`White Lady;gin;${TRIPLE};${LEMON};${EGG}`,
+`Amaretto Sour;amaretto|disaronno;${LEMON};${SYR}`,`Amaretto Sour (Morgenthaler);amaretto|disaronno;bourbon;${LEMON};${SYR};${EGG}`,
+`White Lady;gin;${TRIPLE};${LEMON};${EGG}`,
 // Highballs, fizzes and long drinks
 `Tom Collins;gin;${LEMON};${SYR};${SODA}`,`Gin & Tonic;gin;tonic water;limes|lime juice`,`Moscow Mule;vodka;ginger beer;${LIME}`,
 `Dark 'n' Stormy;dark rum|spiced rum;ginger beer;${LIME}`,`Paloma;tequila;${LIME};grapefruit soda|grapefruit juice`,
@@ -128,7 +129,10 @@ const R=[
 // Modern classics and staples
 `Espresso Martini;vodka;espresso|instant coffee|ground coffee|coffee beans;coffee liqueur|kahlua|kahlúa|tia maria;${SYR}`,
 `Penicillin;${SCOTCH};${LEMON};honey;fresh ginger|ginger syrup|root ginger|ginger root`,`Cosmopolitan;vodka;${TRIPLE};cranberry juice;${LIME}`,
-`Bloody Mary;vodka;tomato juice;${LEMON};worcestershire sauce|worcestershire;hot sauce|tabasco|sriracha`,`Brandy Alexander;${BRANDY};crème de cacao|creme de cacao;${CREAM}`
+`Bloody Mary;vodka;tomato juice;${LEMON};worcestershire sauce|worcestershire;hot sauce|tabasco|sriracha`,`Brandy Alexander;${BRANDY};crème de cacao|creme de cacao;${CREAM}`,
+// Easy extras
+`Cuba Libre;white rum|spiced rum|dark rum;cola;${LIME}`,`Screwdriver;vodka;orange juice|oranges`,`White Russian;vodka;coffee liqueur|kahlua|kahlúa|tia maria;${CREAM}|milk`,
+`Black Russian;vodka;coffee liqueur|kahlua|kahlúa|tia maria`,`Tequila Sunrise;tequila;orange juice|oranges;grenadine`,`Pimm's Cup;pimms|pimm's;lemonade;cucumber|oranges|fresh mint|strawberries`
 ].map(r=>{const p=r.split(';');return{name:p[0],ing:p.slice(1).map(x=>x.split('|'))}});
 // Bar essentials: [name, what it is for]. Everything starts as "missing" so you tick what you own.
 const GEAR={
@@ -151,6 +155,7 @@ const GEAR={
 ["Rocks glass","Old Fashioned, Negroni, Whiskey Sour, Rusty Nail"],
 ["Highball or Collins glass","Gin & Tonic, Mojito, Tom Collins, Paloma, Moscow Mule"],
 ["Coupe or Martini glass","Martini, Manhattan, Daiquiri, Cosmopolitan, Sidecar"],
+["Champagne flute","French 75, Champagne Cocktail, Bellini"],
 ["Large wine glass","Aperol Spritz and other spritzes"],
 ["Copper mug","Moscow Mule; optional but traditional"],
 ["Shot glass","Measuring in a pinch, and shots"]]};
@@ -172,6 +177,10 @@ function homeFor(n){const r=HOME.find(([x])=>x.test(n));if(!r)return null;return
 // v21 move: anything in a "Non-alcoholic spirits" style category is flagged and moved to its drink's category.
 // Items whose kind cannot be told from the name stay where they are, flagged, for the user to move.
 function migrateAF(){let n=0;S.items.forEach(i=>{if(!NACAT.test(i.c))return;if(!i.af){i.af=1;n++}const c=homeFor(i.n);if(c){i.c=c;n++}});return n}
+// Kit added to GEAR after release: put each on an existing Essentials list once (not ticked), so a deleted one stays deleted.
+const NEWGEAR=['Champagne flute'];
+function migrateGear(){S.gk=S.gk||[];let n=0;NEWGEAR.forEach(nm=>{if(S.gk.includes(nm))return;S.gk.push(nm);n++;
+  if(S.gear.some(g=>g.n===nm))return;for(const c in GEAR){const e=GEAR[c].find(x=>x[0]===nm);if(e)S.gear.push({n:nm,c,w:e[1],s:0})}});return n}
 function seed(){const items=[];for(const c in DEF){DEF[c][0].forEach(n=>items.push({n,c,s:1,af:afOf(n)}));DEF[c][1].forEach(n=>items.push({n,c,s:0,af:afOf(n)}))}return{items,gear:seedGear(),saved:[]}}
 let S=null;try{S=JSON.parse(localStorage.getItem('homebar2'))}catch(e){}
 if(!S||!Array.isArray(S.items))S=seed();
@@ -180,7 +189,7 @@ if(!Array.isArray(S.saved))S.saved=[];   // recipes kept from "Surprise me" and 
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 const P=load('homebar_prefs',{col:{},theme:'auto',lastBk:0,chg:0,bkLater:0});   // collapsed categories, appearance, backup tracking
 function save(){S.t=Date.now();store('homebar2',S);P.chg=(P.chg||0)+1;store('homebar_prefs',P)}   // chg counts saves since the last backup
-if(migrateAF())save();
+if(migrateAF()+migrateGear())save();
 const AI=load('homebar_ai',{rec:{},ideas:null,notes:{},gear:{}});    // cached Gemini answers (recipes, ideas, per-bottle notes, per-essential tips)
 if(!AI.notes||typeof AI.notes!=='object')AI.notes={};
 if(!AI.gear||typeof AI.gear!=='object')AI.gear={};
@@ -837,7 +846,7 @@ function settings(){
     const ingOf=v=>{if(!Array.isArray(v))return undefined;const g=v.map(a=>Array.isArray(a)?a.filter(o=>typeof o==='string'&&o.trim()).slice(0,3):[]).filter(a=>a.length).slice(0,12);return g.length?g:undefined};
     const saved=Array.isArray(d.saved)?d.saved.filter(x=>x&&typeof x.name==='string'&&typeof x.text==='string').map(x=>({id:String(x.id||uid()),name:x.name,text:x.text,src:x.src==='recipe'?'recipe':'ideas',extra:str(x.extra),ing:ingOf(x.ing),t:+x.t||Date.now()})):[];
     const url=v=>typeof v==='string'&&/^https?:\/\//i.test(v.trim())?v.trim():undefined;
-    S={items:d.items.map(i=>({n:i.n,c:i.c,s:i.s?1:0,u:i.u?1:undefined,l:i.s&&i.l?1:undefined,af:i.af?1:undefined,note:str(i.note),url:url(i.url)})),gear,saved};migrateAF();save();   // older backups: move alcohol-free items to their drink's category
+    S={items:d.items.map(i=>({n:i.n,c:i.c,s:i.s?1:0,u:i.u?1:undefined,l:i.s&&i.l?1:undefined,af:i.af?1:undefined,note:str(i.note),url:url(i.url)})),gear,saved};migrateAF();migrateGear();save();   // older backups: move alcohol-free items to their drink's category, add new kit
     let more='';
     if(d.ai){const a=obj(d.ai);
       AI.rec=Object.fromEntries(Object.entries(obj(a.rec)).filter(([k,v])=>typeof v==='string'));

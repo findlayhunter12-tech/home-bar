@@ -2,6 +2,11 @@
 
 The working file is always `Home Bar.html` in the folder above. Before each change the previous version is copied here as `Home Bar v{N} {date} {note}.html`, so each archived file is the final state of that version. Those archived copies stay on the owner's PC and are not in the Git repository, because versions up to v18 carry a personal starting list; from v19 the Git history holds every version.
 
+## v23, 2026-10-09: Easy extras, Champagne flute, two Amaretto Sours
+- The six recipes dropped in v22 are back as easy extras: Cuba Libre, Screwdriver, White Russian, Black Russian, Tequila Sunrise and Pimm's Cup. 57 recipes in all.
+- Amaretto Sour checked online. The 1974 original is amaretto, lemon and sugar; the version on the essentials list (amaretto, cask-proof bourbon, lemon, rich syrup, egg white) is Jeffrey Morgenthaler's from 2012. "Amaretto Sour" is now the original and "Amaretto Sour (Morgenthaler)" the bourbon and egg white one.
+- Essentials: Champagne flute under Glassware, for French 75, Champagne Cocktail and Bellini. An existing Essentials list gets it once, not ticked, when the app opens or a backup is restored; delete it and it stays deleted.
+
 ## v22, 2026-10-09: 50 essential cocktails
 - The built-in list is now 50 essential cocktails in seven groups: spirit-forward (Old Fashioned to Godfather), sours and daisies (Daiquiri to White Lady), highballs and fizzes (Tom Collins to Whiskey Highball), equal-parts and bitter (Last Word to Black Manhattan), sparkling (French 75 to Bellini), tiki (Mai Tai to Painkiller) and modern classics (Espresso Martini to Brandy Alexander). Martini is now Dry Martini.
 - Dropped from the old list: Cuba Libre, Screwdriver, White Russian, Black Russian, Tequila Sunrise and Pimm's Cup.
