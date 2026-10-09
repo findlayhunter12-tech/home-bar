@@ -2,6 +2,14 @@
 
 The working file is always `Home Bar.html` in the folder above. Before each change the previous version is copied here as `Home Bar v{N} {date} {note}.html`, so each archived file is the final state of that version. Those archived copies stay on the owner's PC and are not in the Git repository, because versions up to v18 carry a personal starting list; from v19 the Git history holds every version.
 
+## v22, 2026-10-09: 50 essential cocktails
+- The built-in list is now 50 essential cocktails in seven groups: spirit-forward (Old Fashioned to Godfather), sours and daisies (Daiquiri to White Lady), highballs and fizzes (Tom Collins to Whiskey Highball), equal-parts and bitter (Last Word to Black Manhattan), sparkling (French 75 to Bellini), tiki (Mai Tai to Painkiller) and modern classics (Espresso Martini to Brandy Alexander). Martini is now Dry Martini.
+- Dropped from the old list: Cuba Libre, Screwdriver, White Russian, Black Russian, Tequila Sunrise and Pimm's Cup.
+- Matching is generous where it is safe: sugar counts as simple syrup, fresh limes and lemons count as their juice, any sparkling wine counts as Prosecco, Cointreau or curaçao as triple sec, aquafaba as egg white, cognac as brandy, pastis or Pernod as absinthe. Optional garnishes (nutmeg, an Islay float) are left out.
+- Starting list: new categories Amari & herbal and Store cupboard, and new generic items Overproof rum, Mezcal, Pisco, Maraschino liqueur, Crème de violette, Crème de cacao, Drambuie, Falernum, Green and Yellow Chartreuse, Bénédictine, Absinthe, Averna, Amaro Nonino, Lillet Blanc, Prosecco, Peychaud's bitters, Grapefruit soda, Cranberry, Grapefruit, Pineapple and Tomato juice, Cream of coconut, Peach purée, Double cream, Orgeat, Raspberry syrup, Cinnamon syrup, Espresso, Worcestershire sauce, Hot sauce and Orange flower water. Every one of the 50 can be made from the starting list.
+- An existing bar list is untouched. "Restore missing defaults" in Settings adds the new generic names.
+- Essentials: glassware descriptions updated for the new drinks.
+
 ## v21, 2026-10-09: Alcohol-free versions count in cocktails
 - The separate Non-alcoholic spirits category is gone. An alcohol-free product now sits in the category of the drink it replaces (an alcohol-free gin under Gin) and carries an alcohol-free flag, shown as a green 0% tag on the Bar tab. It counts towards Make now, One ingredient away and Buy next like the regular version.
 - On first opening, and when restoring an older backup, anything in a Non-alcoholic spirits category is flagged and moved to its drink's category when the name says what it is (gin, whisky, rum, vodka, tequila, brandy, aperitif, liqueur, bitters). Anything the name does not give away stays where it is, flagged, to move by hand with the Category picker.

@@ -67,7 +67,7 @@ a{color:var(--acc)}
 <div id="sheet"></div>
 <nav><button class="tab" data-t="stock">🍾 Bar</button><button class="tab" data-t="cocktails">🍸 Cocktails</button><button class="tab" data-t="ideas">✨ Ideas</button><button class="tab" data-t="gear">🧰 Essentials</button><button class="tab" data-t="settings">⚙️ Settings</button></nav>
 <script>
-const VERSION='v21';
+const VERSION='v22';
 // ---------- Default data ----------
 // Starting list for a new install: [in stock, not in stock] per category. Deliberately generic and
 // all "not in stock" so you tick what you own (or restore a backup). Names match the recipe keys in R.
@@ -75,24 +75,60 @@ const VERSION='v21';
 const DEF={
 "Gin":[[],["London dry gin","Alcohol-free gin"]],
 "Whisky":[[],["Scotch whisky","Bourbon","Rye whiskey"]],
-"Rum":[[],["White rum","Dark rum","Spiced rum","Coconut rum"]],
+"Rum":[[],["White rum","Dark rum","Spiced rum","Overproof rum","Coconut rum"]],
 "Vodka":[[],["Vodka"]],
-"Tequila":[[],["Tequila"]],
-"Brandy":[[],["Brandy"]],
-"Liqueurs":[[],["Triple sec","Amaretto","Coffee liqueur","Irish cream liqueur","Pimm's No. 1"]],
-"Aperitifs & fortified wines":[[],["Aperol","Campari","Sweet vermouth","Dry vermouth","Prosecco"]],
-"Bitters":[[],["Aromatic bitters","Orange bitters"]],
-"Mixers":[[],["Club soda","Tonic water","Ginger beer","Cola","Lemonade","Lime juice","Lemon juice","Orange juice","Cranberry juice","Double cream"]],
-"Syrups & sugar":[[],["Simple syrup","Grenadine","Sugar"]],
-"Garnish & fresh":[[],["Limes","Lemons","Oranges","Cucumber","Fresh mint","Olives","Cherries","Eggs","Ice"]]};
-const R=["Old Fashioned;bourbon|rye whiskey|whisky;sugar|simple syrup;aromatic bitters|angostura bitters","Manhattan;rye whiskey|bourbon|whisky;sweet vermouth;aromatic bitters|angostura bitters",
-"Negroni;gin;campari;sweet vermouth","Martini;gin;dry vermouth;olives|lemons","Margarita;tequila;triple sec;lime juice","Daiquiri;white rum|spiced rum|dark rum;lime juice;simple syrup",
-"Mojito;white rum|spiced rum;lime juice;fresh mint;simple syrup|sugar;club soda","Moscow Mule;vodka;ginger beer;lime juice","Gin & Tonic;gin;tonic water;limes|lime juice",
-"Whiskey Sour;bourbon|rye whiskey|whisky;lemon juice;simple syrup","Cosmopolitan;vodka;triple sec;cranberry juice;lime juice","Dark 'n' Stormy;dark rum|spiced rum;ginger beer;lime juice",
-"Aperol Spritz;aperol;prosecco;club soda","Tom Collins;gin;lemon juice;simple syrup;club soda","Americano;campari;sweet vermouth;club soda",
-"Cuba Libre;white rum|spiced rum|dark rum;cola;lime juice","Sidecar;brandy;triple sec;lemon juice","Screwdriver;vodka;orange juice","White Russian;vodka;coffee liqueur;double cream|single cream|milk",
-"Black Russian;vodka;coffee liqueur","Amaretto Sour;amaretto;lemon juice;simple syrup","Boulevardier;bourbon|rye whiskey|whisky;campari;sweet vermouth","Tequila Sunrise;tequila;orange juice;grenadine",
-"Gimlet;gin;lime juice;simple syrup","Pimm's Cup;pimms|pimm's;lemonade;cucumber|oranges|fresh mint"
+"Tequila":[[],["Tequila","Mezcal"]],
+"Brandy":[[],["Brandy","Pisco"]],
+"Liqueurs":[[],["Triple sec","Amaretto","Coffee liqueur","Irish cream liqueur","Pimm's No. 1","Maraschino liqueur","Crème de violette","Crème de cacao","Drambuie","Falernum"]],
+"Amari & herbal":[[],["Green Chartreuse","Yellow Chartreuse","Bénédictine","Absinthe","Averna","Amaro Nonino"]],
+"Aperitifs & fortified wines":[[],["Aperol","Campari","Sweet vermouth","Dry vermouth","Lillet Blanc","Prosecco"]],
+"Bitters":[[],["Aromatic bitters","Orange bitters","Peychaud's bitters"]],
+"Mixers":[[],["Club soda","Tonic water","Ginger beer","Grapefruit soda","Cola","Lemonade","Lime juice","Lemon juice","Orange juice","Cranberry juice","Grapefruit juice","Pineapple juice","Tomato juice","Cream of coconut","Peach purée","Double cream"]],
+"Syrups & sugar":[[],["Simple syrup","Grenadine","Sugar","Honey","Orgeat","Raspberry syrup","Cinnamon syrup"]],
+"Garnish & fresh":[[],["Limes","Lemons","Oranges","Cucumber","Fresh mint","Fresh ginger","Olives","Cherries","Eggs","Ice"]],
+"Store cupboard":[[],["Espresso","Worcestershire sauce","Hot sauce","Orange flower water"]]};
+// Built-in cocktails: "Name;ingredient;ingredient", each ingredient a list of alternatives split by "|". An ingredient is met
+// when an in-stock item's name contains one alternative as whole words. The first alternative is the name shown when it is missing.
+// Optional bits, garnish twists, salt and pepper are left out; a garnish stays only when the drink depends on it.
+// Fresh fruit counts for its juice and sugar for simple syrup, since either can be made on the spot.
+const LIME='lime juice|limes',LEMON='lemon juice|lemons',SYR='simple syrup|sugar syrup|sugar',SODA='club soda|soda water|sparkling water',
+  EGG='egg white|eggs|aquafaba',CREAM='double cream|single cream|whipping cream|heavy cream',TRIPLE='triple sec|cointreau|orange curaçao|orange curacao|grand marnier',
+  BITT='aromatic bitters|angostura bitters',FIZZ='prosecco|champagne|sparkling wine|cava|crémant',ABS='absinthe|pastis|pernod|herbsaint',BRANDY='brandy|cognac',
+  SCOTCH='scotch whisky|scotch|whisky',MARA='maraschino liqueur|maraschino originale|luxardo maraschino',PINE='pineapple juice|fresh pineapple',COCO='cream of coconut|coconut cream',
+  GREENC='green chartreuse|chartreuse verte',PEY="peychaud's bitters|peychaud";
+const R=[
+// Pre-Prohibition and spirit-forward
+`Old Fashioned;bourbon|rye whiskey|whisky;${SYR};${BITT}`,`Manhattan;rye whiskey|bourbon|whisky;sweet vermouth;${BITT}`,`Dry Martini;gin;dry vermouth;olives|lemons`,
+`Negroni;gin;campari;sweet vermouth`,`Boulevardier;bourbon|rye whiskey|whisky;campari;sweet vermouth`,`Sazerac;rye whiskey|cognac|brandy;${PEY};${SYR};${ABS}`,
+`Martinez;gin;sweet vermouth;${MARA};orange bitters|${BITT}`,`Vieux Carré;rye whiskey|bourbon;${BRANDY};sweet vermouth;bénédictine|benedictine;${PEY}|${BITT}`,
+`Rusty Nail;${SCOTCH};drambuie`,`Godfather;${SCOTCH};amaretto|disaronno`,
+// Sours and daisies
+`Daiquiri;white rum|spiced rum|dark rum;${LIME};${SYR}`,`Margarita;tequila;${TRIPLE};${LIME}`,`Whiskey Sour;bourbon|rye whiskey|whisky;${LEMON};${SYR}`,
+`Sidecar;${BRANDY};${TRIPLE};${LEMON}`,`Gimlet;gin;${LIME};${SYR}`,`Aviation;gin;${MARA};crème de violette|creme de violette|violette;${LEMON}`,
+`Clover Club;gin;${LEMON};raspberry syrup|raspberries;${EGG}`,`Pisco Sour;pisco;${LIME};${SYR};${EGG};${BITT}`,
+`Amaretto Sour;amaretto|disaronno;bourbon;${LEMON};${SYR};${EGG}`,`White Lady;gin;${TRIPLE};${LEMON};${EGG}`,
+// Highballs, fizzes and long drinks
+`Tom Collins;gin;${LEMON};${SYR};${SODA}`,`Gin & Tonic;gin;tonic water;limes|lime juice`,`Moscow Mule;vodka;ginger beer;${LIME}`,
+`Dark 'n' Stormy;dark rum|spiced rum;ginger beer;${LIME}`,`Paloma;tequila;${LIME};grapefruit soda|grapefruit juice`,
+`Mojito;white rum|spiced rum;${LIME};fresh mint|mint;${SYR};${SODA}`,`Gin Fizz;gin;${LEMON};${SYR};${SODA}`,
+`Ramos Gin Fizz;gin;${LEMON};${LIME};${SYR};${CREAM};${EGG};orange flower water|orange blossom water;${SODA}`,
+`Americano;campari;sweet vermouth;${SODA}`,`Whiskey Highball;scotch whisky|whisky;${SODA}`,
+// Equal parts, bitter and herbal
+`Last Word;gin;${GREENC};${MARA};${LIME}`,`Paper Plane;bourbon;aperol;amaro nonino|nonino;${LEMON}`,
+`Corpse Reviver #2;gin;${TRIPLE};lillet blanc|lillet|cocchi americano;${LEMON};${ABS}`,`Bijou;gin;${GREENC};sweet vermouth;orange bitters`,
+`Naked and Famous;mezcal;aperol;yellow chartreuse|chartreuse jaune;${LIME}`,`Black Manhattan;rye whiskey|bourbon;averna|amaro;${BITT}|orange bitters`,
+// Sparkling
+`French 75;gin|cognac|brandy;${LEMON};${SYR};${FIZZ}`,`Champagne Cocktail;${FIZZ};sugar|simple syrup;${BITT}`,`Aperol Spritz;aperol;${FIZZ};${SODA}`,
+`Bellini;${FIZZ};peach purée|peach puree|peach nectar|peaches`,
+// Tiki and tropical
+`Mai Tai;aged rum|dark rum|gold rum;${LIME};orange curaçao|orange curacao|triple sec|cointreau;orgeat|almond syrup;${SYR}`,
+`Zombie;dark rum|aged rum|gold rum;overproof rum|navy rum;${LIME};grapefruit juice;falernum;cinnamon syrup;grenadine;${ABS}`,
+`Jungle Bird;dark rum|blackstrap rum|aged rum;campari;${PINE};${LIME};demerara syrup|${SYR}`,`Piña Colada;white rum;${COCO};${PINE}`,
+`Painkiller;dark rum|navy rum|pusser's;${PINE};orange juice|oranges;${COCO}`,
+// Modern classics and staples
+`Espresso Martini;vodka;espresso|instant coffee|ground coffee|coffee beans;coffee liqueur|kahlua|kahlúa|tia maria;${SYR}`,
+`Penicillin;${SCOTCH};${LEMON};honey;fresh ginger|ginger syrup|root ginger|ginger root`,`Cosmopolitan;vodka;${TRIPLE};cranberry juice;${LIME}`,
+`Bloody Mary;vodka;tomato juice;${LEMON};worcestershire sauce|worcestershire;hot sauce|tabasco|sriracha`,`Brandy Alexander;${BRANDY};crème de cacao|creme de cacao;${CREAM}`
 ].map(r=>{const p=r.split(';');return{name:p[0],ing:p.slice(1).map(x=>x.split('|'))}});
 // Bar essentials: [name, what it is for]. Everything starts as "missing" so you tick what you own.
 const GEAR={
@@ -112,10 +148,10 @@ const GEAR={
 ["Cocktail picks","Olives and cherries for Martini and Manhattan"],
 ["Bottle opener and corkscrew","Tonic, ginger beer, prosecco, vermouth"]],
 "Glassware":[
-["Rocks glass","Old Fashioned, Negroni, Whiskey Sour, Black Russian"],
-["Highball or Collins glass","Gin & Tonic, Mojito, Tom Collins, Cuba Libre, Moscow Mule"],
+["Rocks glass","Old Fashioned, Negroni, Whiskey Sour, Rusty Nail"],
+["Highball or Collins glass","Gin & Tonic, Mojito, Tom Collins, Paloma, Moscow Mule"],
 ["Coupe or Martini glass","Martini, Manhattan, Daiquiri, Cosmopolitan, Sidecar"],
-["Large wine glass","Aperol Spritz, Pimm's Cup"],
+["Large wine glass","Aperol Spritz and other spritzes"],
 ["Copper mug","Moscow Mule; optional but traditional"],
 ["Shot glass","Measuring in a pinch, and shots"]]};
 // ---------- Storage ----------

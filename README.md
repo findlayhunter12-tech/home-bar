@@ -6,7 +6,7 @@ A small web app for keeping track of a home bar: what bottles you have, what you
 
 - **Bar.** Your bottles and mixers by category. Tick what is in stock, flag what is running low, search, and rename or delete in Edit mode. Tap a bottle for tasting notes, the cocktails that use it, your own notes, a link, and to move it to another category. Alcohol-free versions sit with the drink they replace, carry a 0% tag, and count towards cocktails.
 - **Add from photo.** Take a picture of a shelf and Gemini lists the bottles it can read. You review them before anything is saved.
-- **Cocktails.** 25 classics sorted into what you can make now, what is one ingredient away, and what is further off. Also a running-low shopping list, "Buy next" suggestions for the bottle that unlocks the most drinks, and your saved recipes.
+- **Cocktails.** 50 essential cocktails, from the Old Fashioned to tiki and modern classics, sorted into what you can make now, what is one ingredient away, and what is further off. Also a running-low shopping list, "Buy next" suggestions for the bottle that unlocks the most drinks, and your saved recipes.
 - **How to make.** Gemini writes a recipe for the exact bottles you have, in ml, with a method that suits your bar kit.
 - **Ideas.** "Surprise me" suggests two drinks from your stock, steered by mood (Refreshing, Strong, Sour...) and style (Long, Short, Fizzy...). It can work in something odd you want to use up. Keep the ones you like.
 - **Essentials.** A checklist of equipment and glassware with what each is for, plus Gemini tips on using it. How to make and Surprise me use this list, so they suggest workarounds for tools you do not have.
