@@ -2,6 +2,14 @@
 
 The working file is always `Home Bar.html` in the folder above. Before each change the previous version is copied here as `Home Bar v{N} {date} {note}.html`, so each archived file is the final state of that version. Those archived copies stay on the owner's PC and are not in the Git repository, because versions up to v18 carry a personal starting list; from v19 the Git history holds every version.
 
+## v21, 2026-10-09: Alcohol-free versions count in cocktails
+- The separate Non-alcoholic spirits category is gone. An alcohol-free product now sits in the category of the drink it replaces (an alcohol-free gin under Gin) and carries an alcohol-free flag, shown as a green 0% tag on the Bar tab. It counts towards Make now, One ingredient away and Buy next like the regular version.
+- On first opening, and when restoring an older backup, anything in a Non-alcoholic spirits category is flagged and moved to its drink's category when the name says what it is (gin, whisky, rum, vodka, tequila, brandy, aperitif, liqueur, bitters). Anything the name does not give away stays where it is, flagged, to move by hand with the Category picker.
+- Bottle sheet: an Alcohol-free (0%) switch. Bar tab: a 0% filter.
+- Names with "0.0", "0%", "alcohol-free", "non-alcoholic" or "zero proof" are flagged automatically when added by hand, from a photo or from Ideas. Photo scan asks Gemini whether each product is alcohol-free and offers a 0% chip on new items to correct it.
+- Prompts: tasting notes, How to make and Surprise me name alcohol-free products as such. How to make gives the regular recipe plus a swap line when you have both versions, and says whether the drink ends up alcohol-free when you only have the alcohol-free one.
+- Starting list: Alcohol-free gin is now under Gin.
+
 ## v20, 2026-10-09: Change category
 - Bottle sheet and Essentials sheet: a Category picker under the stock switch moves the item to another category, or to a new one via "New category…". Notes, link, tasting notes and stock state stay with it. An emptied custom category disappears from the list.
 - Moving a bottle into or out of Non-alcoholic spirits changes whether it counts towards cocktails, as before for items added there.

@@ -55,6 +55,7 @@ a{color:var(--acc)}
 .nm{background:none;border:0;color:var(--fg);font:inherit;text-align:left;padding:0;flex:1;min-width:0;cursor:pointer}
 .nm .chev{color:var(--mut);margin-left:4px}
 .tag.low{color:var(--no);border-color:var(--no)}
+.tag.af{color:var(--ok);border-color:var(--ok)}
 .veil{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:10}
 .sheet{position:fixed;left:0;right:0;bottom:0;max-height:88vh;overflow:auto;background:var(--bg);border-radius:16px 16px 0 0;padding:14px 16px calc(20px + env(safe-area-inset-bottom,0px));z-index:11;max-width:640px;margin:0 auto;box-shadow:0 -4px 24px rgba(0,0,0,.25)}
 .veil.top{z-index:12}.sheet.top{z-index:13}
@@ -66,12 +67,13 @@ a{color:var(--acc)}
 <div id="sheet"></div>
 <nav><button class="tab" data-t="stock">🍾 Bar</button><button class="tab" data-t="cocktails">🍸 Cocktails</button><button class="tab" data-t="ideas">✨ Ideas</button><button class="tab" data-t="gear">🧰 Essentials</button><button class="tab" data-t="settings">⚙️ Settings</button></nav>
 <script>
-const VERSION='v20';
+const VERSION='v21';
 // ---------- Default data ----------
 // Starting list for a new install: [in stock, not in stock] per category. Deliberately generic and
 // all "not in stock" so you tick what you own (or restore a backup). Names match the recipe keys in R.
+// Alcohol-free versions sit in the category of the drink they replace (see AFRX below).
 const DEF={
-"Gin":[[],["London dry gin"]],
+"Gin":[[],["London dry gin","Alcohol-free gin"]],
 "Whisky":[[],["Scotch whisky","Bourbon","Rye whiskey"]],
 "Rum":[[],["White rum","Dark rum","Spiced rum","Coconut rum"]],
 "Vodka":[[],["Vodka"]],
@@ -80,7 +82,6 @@ const DEF={
 "Liqueurs":[[],["Triple sec","Amaretto","Coffee liqueur","Irish cream liqueur","Pimm's No. 1"]],
 "Aperitifs & fortified wines":[[],["Aperol","Campari","Sweet vermouth","Dry vermouth","Prosecco"]],
 "Bitters":[[],["Aromatic bitters","Orange bitters"]],
-"Non-alcoholic spirits":[[],["Alcohol-free gin"]],
 "Mixers":[[],["Club soda","Tonic water","Ginger beer","Cola","Lemonade","Lime juice","Lemon juice","Orange juice","Cranberry juice","Double cream"]],
 "Syrups & sugar":[[],["Simple syrup","Grenadine","Sugar"]],
 "Garnish & fresh":[[],["Limes","Lemons","Oranges","Cucumber","Fresh mint","Olives","Cherries","Eggs","Ice"]]};
@@ -121,7 +122,21 @@ const GEAR={
 function load(k,d){try{const v=JSON.parse(localStorage.getItem(k));return v&&typeof v==='object'?Object.assign(d,v):d}catch(e){return d}}
 function store(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 function seedGear(){const g=[];for(const c in GEAR)GEAR[c].forEach(([n,w])=>g.push({n,c,w,s:0}));return g}
-function seed(){const items=[];for(const c in DEF){DEF[c][0].forEach(n=>items.push({n,c,s:1}));DEF[c][1].forEach(n=>items.push({n,c,s:0}))}return{items,gear:seedGear(),saved:[]}}
+// Alcohol-free products carry af:1 and live in the category of the drink they replace (an alcohol-free gin sits in Gin).
+// They count in cocktail matching like the real thing; lists show a 0% tag and prompts call them alcohol-free.
+const AFRX=/alcohol[- ]?free|non[- ]?alc|zero[- ]proof|(^|\s)0\.0(?![\d.])|(^|\s)0(\.0)?\s?%/i;   // names that are clearly alcohol-free
+const NACAT=/non[- ]?alc|alcohol[- ]?free|zero[- ]proof/i;                                      // the old separate category
+const afOf=(n,c)=>AFRX.test(n)||NACAT.test(c||'')?1:undefined;
+// Where an alcohol-free product belongs: [name pattern, pattern for an existing category of that kind, default category].
+const HOME=[[/\bgin\b/i,/^gin/i,'Gin'],[/whisk(e)?y|bourbon|\brye\b|scotch/i,/^whisk/i,'Whisky'],[/\brum\b|\brhum\b/i,/^rum/i,'Rum'],[/vodka/i,/^vodka/i,'Vodka'],
+  [/tequila|mezcal|agave/i,/^tequila|agave/i,'Tequila'],[/brandy|cognac/i,/^brandy|cognac/i,'Brandy'],
+  [/aperitiv|aperitif|aperol|campari|vermouth|spritz|prosecco|sparkling|\bwine\b/i,/aperitif|vermouth|wine/i,'Aperitifs & fortified wines'],
+  [/liqueur|amaretto|triple sec|irish cream/i,/liqueur/i,'Liqueurs'],[/bitters/i,/^bitters/i,'Bitters']];
+function homeFor(n){const r=HOME.find(([x])=>x.test(n));if(!r)return null;return S.items.map(i=>i.c).find(c=>!NACAT.test(c)&&r[1].test(c))||r[2]}
+// v21 move: anything in a "Non-alcoholic spirits" style category is flagged and moved to its drink's category.
+// Items whose kind cannot be told from the name stay where they are, flagged, for the user to move.
+function migrateAF(){let n=0;S.items.forEach(i=>{if(!NACAT.test(i.c))return;if(!i.af){i.af=1;n++}const c=homeFor(i.n);if(c){i.c=c;n++}});return n}
+function seed(){const items=[];for(const c in DEF){DEF[c][0].forEach(n=>items.push({n,c,s:1,af:afOf(n)}));DEF[c][1].forEach(n=>items.push({n,c,s:0,af:afOf(n)}))}return{items,gear:seedGear(),saved:[]}}
 let S=null;try{S=JSON.parse(localStorage.getItem('homebar2'))}catch(e){}
 if(!S||!Array.isArray(S.items))S=seed();
 if(!Array.isArray(S.gear))S.gear=seedGear();
@@ -129,6 +144,7 @@ if(!Array.isArray(S.saved))S.saved=[];   // recipes kept from "Surprise me" and 
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 const P=load('homebar_prefs',{col:{},theme:'auto',lastBk:0,chg:0,bkLater:0});   // collapsed categories, appearance, backup tracking
 function save(){S.t=Date.now();store('homebar2',S);P.chg=(P.chg||0)+1;store('homebar_prefs',P)}   // chg counts saves since the last backup
+if(migrateAF())save();
 const AI=load('homebar_ai',{rec:{},ideas:null,notes:{},gear:{}});    // cached Gemini answers (recipes, ideas, per-bottle notes, per-essential tips)
 if(!AI.notes||typeof AI.notes!=='object')AI.notes={};
 if(!AI.gear||typeof AI.gear!=='object')AI.gear={};
@@ -151,7 +167,7 @@ function renameRow(i,list,after){
 }
 function resetAll(){S=seed();AI.rec={};AI.ideas=null;AI.notes={};AI.gear={};store('homebar_ai',AI);mood='Anything';style='Any';extra='';open=null;openS=null;det=null;gdet=null;save()}
 function applyTheme(){const r=document.documentElement;if(P.theme==='auto')r.removeAttribute('data-theme');else r.setAttribute('data-theme',P.theme)}
-function restoreDefaults(){let n=0;for(const c in DEF)[0,1].forEach(k=>DEF[c][k].forEach(nm=>{if(!S.items.some(i=>i.n===nm)){S.items.push({n:nm,c,s:0});n++}}));
+function restoreDefaults(){let n=0;for(const c in DEF)[0,1].forEach(k=>DEF[c][k].forEach(nm=>{if(!S.items.some(i=>i.n===nm)){S.items.push({n:nm,c,s:0,af:afOf(nm)});n++}}));
   for(const c in GEAR)GEAR[c].forEach(([nm,w])=>{if(!S.gear.some(g=>g.n===nm)){S.gear.push({n:nm,c,w,s:0});n++}});save();return n}
 // ---------- Gemini ----------
 const GK='homebar_gemini_key',GM='homebar_gemini_model',GDEF='gemini-3.8-flash';
@@ -253,9 +269,10 @@ function h(t,a,...k){const e=document.createElement(t);for(const x in a||{}){if(
 const cats=()=>[...new Set([...Object.keys(DEF),...S.items.map(i=>i.c)])];
 const rx=a=>new RegExp('\\b'+a.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\b','i');
 const norm=s=>String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
-const found=alts=>S.items.filter(i=>i.s&&!/non-alc/i.test(i.c)&&alts.some(a=>rx(a).test(i.n)));
+const found=alts=>S.items.filter(i=>i.s&&alts.some(a=>rx(a).test(i.n)));   // alcohol-free versions count too
 const have=alts=>found(alts).length>0;
-const stocked=()=>S.items.filter(i=>i.s).map(i=>/non-alc/i.test(i.c)?i.n+' (alcohol-free)':i.n);
+const afName=i=>i.af?i.n+' (alcohol-free)':i.n;
+const stocked=()=>S.items.filter(i=>i.s).map(afName);
 // Bar kit from the Essentials tab, as a prompt sentence. Empty until something is ticked,
 // so an untouched checklist does not rule out every shaken drink.
 function kitLine(forMethod){
@@ -342,7 +359,7 @@ async function structure(x){
 }
 const inMake=x=>Array.isArray(x.ing)&&x.ing.length>0;
 const allRecipes=()=>[...R,...S.saved.filter(inMake).map(x=>({name:x.name,ing:x.ing,saved:x}))];
-const ingLines=ing=>ing.map(a=>{const f=found(a),ok=f.length>0;return h('div',{c:'ing'},h('span',{c:ok?'y':'n'},ok?'✓ ':'✗ '),ok?f.map(i=>i.n).join(', '):a.map(cap).join(' or '))});
+const ingLines=ing=>ing.map(a=>{const f=found(a),ok=f.length>0;return h('div',{c:'ing'},h('span',{c:ok?'y':'n'},ok?'✓ ':'✗ '),ok?f.map(afName).join(', '):a.map(cap).join(' or '))});
 function buyNext(){
   const rows=allRecipes().map(r=>({r,m:r.ing.filter(a=>!have(a))})),cand={};
   rows.forEach(x=>{if(!x.m.length)return;x.m.forEach(g=>g.forEach(a=>{const c=cand[a]||(cand[a]={a,full:[],closer:[]});(x.m.length===1?c.full:c.closer).push(x.r.name)}))});
@@ -381,7 +398,7 @@ async function shrink(f){
     return cv.toDataURL('image/jpeg',.82);
   }finally{URL.revokeObjectURL(url)}
 }
-const SCHEMA={type:'OBJECT',properties:{items:{type:'ARRAY',items:{type:'OBJECT',properties:{name:{type:'STRING'},category:{type:'STRING'},match:{type:'STRING',nullable:true}},required:['name','category']}}},required:['items']};
+const SCHEMA={type:'OBJECT',properties:{items:{type:'ARRAY',items:{type:'OBJECT',properties:{name:{type:'STRING'},category:{type:'STRING'},match:{type:'STRING',nullable:true},alcoholFree:{type:'BOOLEAN',nullable:true}},required:['name','category']}}},required:['items']};
 function matchItem(name,hint){
   let m=hint?S.items.find(i=>i.n===hint):null;
   if(!m){const k=norm(name);if(k.length>=3)m=S.items.find(i=>{const x=norm(i.n);return x===k||(' '+x+' ').includes(' '+k+' ')||(' '+k+' ').includes(' '+x+' ')})||null}
@@ -394,12 +411,14 @@ async function scan(f){
   scanning=true;scanMsg='Reading the photo…';rev=null;render();scrollTo(0,0);
   try{
     const data=await shrink(f);
-    const prompt='This photo shows one or more bottles or ingredients for a home bar. List every distinct product you can identify. For each give: name (brand and product as printed, tidied up, e.g. "Hendrick\'s Gin"), category (choose one of: '+cats().join('; ')+'), and match (the exact string from the existing list below if it is the same product or a generic placeholder for it such as "Bourbon" for a bourbon, otherwise null). Existing list: '+JSON.stringify(S.items.map(i=>i.n))+'. If no bottle or ingredient is visible return an empty list.';
+    const prompt='This photo shows one or more bottles or ingredients for a home bar. List every distinct product you can identify. For each give: name (brand and product as printed, tidied up, e.g. "Hendrick\'s Gin"), category (choose one of: '+cats().join('; ')+'), and match (the exact string from the existing list below if it is the same product or a generic placeholder for it such as "Bourbon" for a bourbon, otherwise null), and alcoholFree (true only for an alcohol-free or 0.0% product; put such a product in the category of the drink it replaces, for example an alcohol-free gin under Gin). Existing list: '+JSON.stringify(S.items.map(i=>i.n))+'. If no bottle or ingredient is visible return an empty list.';
     const j=await geminiJSON(prompt,data,SCHEMA);
     const rows=(j.items||[]).filter(it=>it&&it.name).map(it=>{
-      const m=matchItem(it.name,it.match);
-      const c=cats().find(c=>norm(c)===norm(it.category))||(m?m.c:(it.category||'Other'));
-      return{on:1,n:String(it.name).trim(),c,m};
+      const n=String(it.name).trim(),m=matchItem(it.name,it.match);
+      let c=cats().find(c=>norm(c)===norm(it.category))||(m?m.c:(it.category||'Other'));
+      const af=it.alcoholFree===true||!!afOf(n,c);
+      if(NACAT.test(c))c=homeFor(n)||c;   // a separate non-alcoholic category is not used any more
+      return{on:1,n,c,m,af};
     });
     rev=rows.length?{img:data,rows}:null;scanMsg=rows.length?'':'No bottles or ingredients found in that photo.';
   }catch(e){scanMsg=gerr(e)}
@@ -416,9 +435,10 @@ function review(){
     const opts=cats();if(!opts.includes(r.c))opts.push(r.c);
     const sel=h('select',{'aria-label':'Category'},...opts.map(x=>h('option',{value:x},x)));sel.value=r.c;sel.onchange=()=>{r.c=sel.value};
     const badge=r.m?h('span',{c:'badge ok'},r.m.s?(r.m.l?'Restock: clears "running low" on '+r.m.n:'Already in stock: '+r.m.n):'Update: mark "'+r.m.n+'" in stock'):h('span',{c:'badge new'},'New item');
-    c.append(h('div',{c:'rev'},cb,h('div',{},ni,h('div',{c:'row2',style:'margin:6px 0 0'},sel,badge))));
+    const afc=r.m?null:h('button',{c:'chip'+(r.af?' on':''),'aria-pressed':String(!!r.af),onclick:e=>{r.af=!r.af;const b=e.currentTarget;b.classList.toggle('on',r.af);b.setAttribute('aria-pressed',String(r.af));b.textContent=r.af?'0% ✓':'0%?'}},r.af?'0% ✓':'0%?');
+    c.append(h('div',{c:'rev'},cb,h('div',{},ni,h('div',{c:'row2',style:'margin:6px 0 0'},sel,afc,badge))));
   });
-  const apply=()=>{let a=0,u=0,rl=0;rev.rows.forEach(r=>{if(!r.on)return;const n=r.n.trim();if(!n)return;if(r.m){if(!r.m.s){r.m.s=1;delete r.m.l;u++}else if(r.m.l){delete r.m.l;rl++}}else{S.items.push({n,c:r.c,s:1,u:1});a++}});
+  const apply=()=>{let a=0,u=0,rl=0;rev.rows.forEach(r=>{if(!r.on)return;const n=r.n.trim();if(!n)return;if(r.m){if(!r.m.s){r.m.s=1;delete r.m.l;u++}else if(r.m.l){delete r.m.l;rl++}}else{S.items.push({n,c:r.c,s:1,u:1,af:r.af||NACAT.test(r.c)?1:undefined});a++}});
     save();rev=null;const p=[];if(a)p.push(a+' added');if(u)p.push(u+' marked in stock');if(rl)p.push(rl+' restocked');say(p.length?p.join(', ')+'.':'Nothing to change.');render()};
   c.append(h('div',{c:'row2'},h('button',{c:'btn',onclick:apply},'Add to my bar')));
   return c;
@@ -441,8 +461,8 @@ function stock(){
   const list=h('div');
   const si=h('input',{type:'search',placeholder:'Search your bar',value:q,'aria-label':'Search',oninput:e=>{q=e.target.value;renderList()}});
   const bar=h('div',{c:'row2'});
-  const fok=i=>filter==='all'||(filter==='in'?!!i.s:filter==='out'?!i.s:!!(i.s&&i.l));
-  [['all','All'],['in','In stock'],['low','Low'],['out','Out']].forEach(([f,l])=>bar.append(h('button',{c:'chip'+(filter===f?' on':''),'data-f':f,onclick:()=>{filter=f;renderList();bar.querySelectorAll('[data-f]').forEach(b=>b.classList.toggle('on',b.dataset.f===filter))}},l)));
+  const fok=i=>filter==='all'||(filter==='in'?!!i.s:filter==='out'?!i.s:filter==='af'?!!i.af:!!(i.s&&i.l));
+  [['all','All'],['in','In stock'],['low','Low'],['out','Out'],['af','0%']].forEach(([f,l])=>bar.append(h('button',{c:'chip'+(filter===f?' on':''),'data-f':f,onclick:()=>{filter=f;renderList();bar.querySelectorAll('[data-f]').forEach(b=>b.classList.toggle('on',b.dataset.f===filter))}},l)));
   bar.append(h('button',{c:'chip'+(edit?' on':''),onclick:()=>{edit=!edit;ren=null;renMsg='';render()}},edit?'Done':'Edit'));
   w.append(si,bar,list);
   function renderList(){
@@ -458,12 +478,12 @@ function stock(){
       its.forEach(i=>{
         if(edit&&ren===i){out.push(renameRow(i,S.items,()=>{upd();renderList()}));return}
         out.push(h('div',{c:'item'},
-          h('button',{c:'nm','aria-label':(edit?'Rename ':'Details for ')+i.n,onclick:()=>{if(edit){ren=i;renMsg='';renderList()}else{det=i;drawSheet()}}},i.n,i.s&&i.l?h('span',{c:'tag low'},'low'):null,i.u?h('span',{c:'tag'},'added'):null,h('span',{c:'chev'},edit?'✎':'›')),
+          h('button',{c:'nm','aria-label':(edit?'Rename ':'Details for ')+i.n,onclick:()=>{if(edit){ren=i;renMsg='';renderList()}else{det=i;drawSheet()}}},i.n,i.af?h('span',{c:'tag af',title:'Alcohol-free'},'0%'):null,i.s&&i.l?h('span',{c:'tag low'},'low'):null,i.u?h('span',{c:'tag'},'added'):null,h('span',{c:'chev'},edit?'✎':'›')),
           edit?h('button',{c:'del','aria-label':'Delete '+i.n,onclick:()=>{removeItem(i);upd();renderList()}},'✕')
               :h('button',{c:'tg'+(i.s?' on':''),role:'switch','aria-label':i.n,'aria-checked':String(!!i.s),onclick:()=>{setStock(i,!i.s);upd();renderList()}},h('i'))));
       });
     });
-    if(!out.length)out.push(h('div',{c:'empty'},k?'Nothing matches "'+q+'".':filter==='low'?'Nothing is running low. Tap a bottle\'s name to mark it.':'Nothing to show here.'));
+    if(!out.length)out.push(h('div',{c:'empty'},k?'Nothing matches "'+q+'".':filter==='low'?'Nothing is running low. Tap a bottle\'s name to mark it.':filter==='af'?'Nothing is marked alcohol-free. Tap a bottle\'s name to mark it.':'Nothing to show here.'));
     list.replaceChildren(...out);
   }
   renderList();
@@ -473,11 +493,12 @@ function stock(){
   const sel=h('select',{style:'flex:1'},...cats().map(c=>h('option',{value:c},c)),h('option',{value:'__new'},'New category…'));
   const nc=h('input',{placeholder:'New category name',style:'flex:1 1 100%;display:none'});
   sel.onchange=()=>{nc.style.display=sel.value==='__new'?'':'none';if(sel.value==='__new')nc.focus()};
-  const add=()=>{const v=nm.value.trim();if(!v)return;const c=sel.value==='__new'?nc.value.trim():sel.value;if(!c){nc.focus();return}S.items.push({n:v,c,s:1,u:1});save();render()};
+  const add=()=>{const v=nm.value.trim();if(!v)return;const c=sel.value==='__new'?nc.value.trim():sel.value;if(!c){nc.focus();return}S.items.push({n:v,c,s:1,u:1,af:afOf(v,c)});save();render()};
   nm.addEventListener('keydown',e=>{if(e.key==='Enter')add()});
   const pick=h('input',{type:'file',accept:'image/*',style:'display:none',onchange:e=>{const f=e.target.files[0];e.target.value='';if(f)scan(f)}});
   w.append(h('div',{c:'row2'},nm,sel,nc,h('button',{c:'btn',onclick:add},'Add'),h('button',{c:'btn sec',onclick:()=>pick.click()},'📷 Add from photo'),pick),
-    h('div',{c:'sum'},'Photo: snap a bottle or a shelf and Gemini reads the labels. Matches are marked in stock, new ones are added, after you check the list.'));
+    h('div',{c:'sum'},'Photo: snap a bottle or a shelf and Gemini reads the labels. Matches are marked in stock, new ones are added, after you check the list.'),
+    h('div',{c:'sum'},'Alcohol-free versions go in the category of the drink they replace, for example an alcohol-free gin under Gin, so they count in cocktails. Names with "0.0%" or "alcohol-free" get the 0% tag automatically; tap a name to set it by hand.'));
   // Tasting notes for everything in stock
   w.append(h('h3',{},'Tasting notes'));
   const inS=S.items.filter(i=>i.s).length,withN=inS-noNotes().length,running=bulk&&bulk.total;
@@ -489,7 +510,7 @@ function stock(){
   return w;
 }
 // ---------- Tasting notes (single and bulk) ----------
-const notesPrompt=i=>'Give concise home-bar notes for "'+i.n+'" (category: '+i.c+'). Cover: tasting notes in one or two sentences; how it is typically used; what it pairs well with (spirits, mixers, flavours, food); then 3 drinks to try, each with a one-line description. Plain text only, no markdown, under 180 words.';
+const notesPrompt=i=>'Give concise home-bar notes for "'+i.n+'" (category: '+i.c+(i.af?', an alcohol-free version':'')+'). Cover: tasting notes in one or two sentences; how it is typically used; what it pairs well with (spirits, mixers, flavours, food); then 3 drinks to try, each with a one-line description. Plain text only, no markdown, under 180 words.';
 const noNotes=()=>S.items.filter(i=>i.s&&!AI.notes[i.n]);
 let bulk=null,bulkEl=null;   // {done,total,stop,msg} while running, {msg} when finished; bulkEl is the progress line on the Bar tab
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
@@ -532,7 +553,7 @@ function catPicker(x,list){
   sel.value=x.c;
   const nc=h('input',{placeholder:'New category name',style:'flex:1 1 100%;display:none','aria-label':'New category name'});
   const ok=h('button',{c:'chip',style:'display:none'},'Move');
-  const move=c=>{c=c.trim();if(!c||c===x.c){drawSheet();return}x.c=c;save();drawSheet()};
+  const move=c=>{c=c.trim();if(!c||c===x.c){drawSheet();return}x.c=c;if(NACAT.test(c)&&S.items.includes(x))x.af=1;save();drawSheet()};
   sel.onchange=()=>{const n=sel.value==='__new';nc.style.display=ok.style.display=n?'':'none';if(n)nc.focus();else move(sel.value)};
   ok.onclick=()=>{if(nc.value.trim())move(nc.value);else nc.focus()};
   nc.addEventListener('keydown',e=>{if(e.key==='Enter')ok.click()});
@@ -541,11 +562,14 @@ function catPicker(x,list){
 function detail(){
   const i=det,s=h('div',{c:'sheet',role:'dialog','aria-modal':'true','aria-label':i.n});
   s.append(h('div',{c:'ctr'},h('h2',{},i.n),h('button',{c:'chip',onclick:closeDet},'Close')),
-    h('div',{c:'sum'},i.c+' · '+(i.s?(i.l?'In stock, running low':'In stock'):'Out of stock')));
+    h('div',{c:'sum'},i.c+(i.af?' · alcohol-free':'')+' · '+(i.s?(i.l?'In stock, running low':'In stock'):'Out of stock')));
   // Stock and running low
   const row=h('div',{c:'row2'},h('button',{c:'tg'+(i.s?' on':''),role:'switch','aria-checked':String(!!i.s),'aria-label':'In stock',onclick:()=>{setStock(i,!i.s);drawSheet()}},h('i')),h('span',{c:'mut'},'In stock'));
   if(i.s)row.append(h('button',{c:'chip'+(i.l?' on':''),style:'margin-left:auto',onclick:()=>{if(i.l)delete i.l;else i.l=1;save();drawSheet()}},i.l?'Running low ✓':'Mark running low'));
-  s.append(row,h('h3',{},'Category'),catPicker(i,cats()));
+  const afRow=h('div',{c:'row2'},h('button',{c:'tg'+(i.af?' on':''),role:'switch','aria-checked':String(!!i.af),'aria-label':'Alcohol-free',onclick:()=>{if(i.af)delete i.af;else i.af=1;save();drawSheet()}},h('i')),
+    h('span',{c:'mut'},'Alcohol-free (0%)'));
+  s.append(row,afRow,h('h3',{},'Category'),catPicker(i,cats()),
+    i.af?h('div',{c:'sum'},'Counts towards cocktails like the regular version. Gemini is told it is alcohol-free.'):null);
   // Cocktails that use this item
   const uses=usesOf(i),sv=S.saved.filter(x=>!inMake(x)&&mentions(x.text,i.n)),nu=uses.length+sv.length;   // structured saved recipes arrive via usesOf, the rest by text match
   s.append(h('h3',{},'Cocktails using this'+(nu?' ('+nu+')':'')));
@@ -614,8 +638,9 @@ function card(r,miss){
     c.append(...ingLines(r.ing));
     const out=h('div',{c:'out'});out.textContent=AI.rec[r.name]||'';
     const note=h('span',{c:'sum'}),say=t=>{note.textContent=t};
-    const using=[...new Set(r.ing.map(a=>found(a).map(i=>i.n)).flat())];   // the actual bottles it would be made with
-    const p='Give a concise home-bar recipe for a '+r.name+'.'+(using.length?' I will be making it with these exact products: '+using.join(', ')+'. Tailor the amounts, balance and garnish to them and name them in the ingredients list.':'')+kitLine(true)+' Lay it out as "Ingredients:" with one per line and all liquids in ml (never oz), then "Method:" as 3 short numbered steps ending with the glass and garnish. Plain text only, no markdown, no asterisks.';
+    const using=[...new Set(r.ing.map(a=>found(a).map(afName)).flat())];   // the actual bottles it would be made with
+    const p='Give a concise home-bar recipe for a '+r.name+'.'+(using.length?' I will be making it with these exact products: '+using.join(', ')+'. Tailor the amounts, balance and garnish to them and name them in the ingredients list.'
+      +(using.some(n=>/\(alcohol-free\)$/.test(n))?' Where I have both a regular and an alcohol-free version, give the recipe with the regular one and add one line on swapping in the alcohol-free one. Where I only have the alcohol-free version, make it with that and say whether the drink ends up alcohol-free or just lower in alcohol.':''):'')+kitLine(true)+' Lay it out as "Ingredients:" with one per line and all liquids in ml (never oz), then "Method:" as 3 short numbered steps ending with the glass and garnish. Plain text only, no markdown, no asterisks.';
     const hb=h('button',{c:'btn',onclick:()=>ask(p,out,t=>{AI.rec[r.name]=t;store('homebar_ai',AI);render()},hb)},AI.rec[r.name]?'Ask again':'How to make');
     const row=h('div',{c:'row2'},hb);
     if(AI.rec[r.name])row.append(saveChip(r.name,AI.rec[r.name],'recipe'),...outChips(()=>r.name+'\n\n'+AI.rec[r.name],r.name,say),note);
@@ -703,7 +728,7 @@ function ideas(){
     const x=(AI.ideas.extra||'').trim(),cs=cats();
     if(x&&!S.items.some(i=>norm(i.n)===norm(x))){
       const sel=h('select',{'aria-label':'Category for '+x},...cs.map(c=>h('option',{value:c},c)));sel.value=cs.includes('Garnish & fresh')?'Garnish & fresh':cs[0];
-      w.append(h('div',{c:'row2'},h('button',{c:'chip',onclick:()=>{S.items.push({n:cap(x),c:sel.value,s:1,u:1});save();render()}},'Add "'+cap(x)+'" to my bar'),sel));
+      w.append(h('div',{c:'row2'},h('button',{c:'chip',onclick:()=>{S.items.push({n:cap(x),c:sel.value,s:1,u:1,af:afOf(x,sel.value)});save();render()}},'Add "'+cap(x)+'" to my bar'),sel));
     }
   }
   return w;
@@ -776,7 +801,7 @@ function settings(){
     const ingOf=v=>{if(!Array.isArray(v))return undefined;const g=v.map(a=>Array.isArray(a)?a.filter(o=>typeof o==='string'&&o.trim()).slice(0,3):[]).filter(a=>a.length).slice(0,12);return g.length?g:undefined};
     const saved=Array.isArray(d.saved)?d.saved.filter(x=>x&&typeof x.name==='string'&&typeof x.text==='string').map(x=>({id:String(x.id||uid()),name:x.name,text:x.text,src:x.src==='recipe'?'recipe':'ideas',extra:str(x.extra),ing:ingOf(x.ing),t:+x.t||Date.now()})):[];
     const url=v=>typeof v==='string'&&/^https?:\/\//i.test(v.trim())?v.trim():undefined;
-    S={items:d.items.map(i=>({n:i.n,c:i.c,s:i.s?1:0,u:i.u?1:undefined,l:i.s&&i.l?1:undefined,note:str(i.note),url:url(i.url)})),gear,saved};save();
+    S={items:d.items.map(i=>({n:i.n,c:i.c,s:i.s?1:0,u:i.u?1:undefined,l:i.s&&i.l?1:undefined,af:i.af?1:undefined,note:str(i.note),url:url(i.url)})),gear,saved};migrateAF();save();   // older backups: move alcohol-free items to their drink's category
     let more='';
     if(d.ai){const a=obj(d.ai);
       AI.rec=Object.fromEntries(Object.entries(obj(a.rec)).filter(([k,v])=>typeof v==='string'));
